@@ -1,0 +1,26 @@
+body
+{
+    margin: 0;
+    /* background-image: url('../assets/stars-on-black.png'); */
+    background-size: 500px;
+    font-size: 15px;
+}
+
+#game-canvas
+{
+    border: 2px solid whitesmoke;
+    border-radius: 3px;
+    margin: 0 auto;
+
+    width: 600px;
+    height: 600px;
+    display: block;
+    margin: 10px auto;
+}
+
+#game-title {
+    color: white;
+    text-align: center;
+    margin: 15px auto;
+    font-size: 5em;
+}

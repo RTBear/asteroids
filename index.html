@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html lang = "en-US">
+<head>
+    <meta charset = "UTF-8">
+    <title>Asteroids</title>
+    <link rel = "stylesheet" type = "text/css" href = "styles/game.css">
+</head>
+<body>
+    <h1 id="game-title">Asteroids</h1>
+    <canvas id = "game-canvas" width = "600" height = "600"></canvas>
+
+    <script>
+        let MyGame = {
+            systems: {},
+            render: {},
+            graphics: {},
+            objects: {},
+            input: {},
+        };
+    </script>
+    <script src = "scripts/random.js"></script>
+    <script src = "scripts/render/graphics.js"></script>
+    <script src = "scripts/render/particle-system.js"></script>
+    <script src = "scripts/render/space-object.js"></script>
+    <script src = "scripts/system/particle-system.js"></script>
+    <script src = "scripts/objects/space-object.js"></script>
+    <script src = "scripts/objects/ship.js"></script>
+    <script src = "scripts/objects/player-ship.js"></script>
+    <script src = "scripts/input/keyboard.js"></script>
+    <script src = "scripts/game.js"></script>
+</body>
+</html>
