@@ -15,10 +15,12 @@
 //////////////////// SPACE OBJECT //////////////////////////////////////////////////////
 //    imageSrc: ,   // Web server location of the image
 //    center: { x: , y: },
-//    size: { width: , height: },
+//    size: { x: , y: },
 //    orientation: { x: , y: },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
+//    rotation: , //float //orientation angle
 //    maxSpeed: , //float //max magnitude of momentum
-//    graphics: reference to graphics renderer (MyGame.graphics)
+//    momentum: { x: , y: }, //vector //current momentum
+//    graphics: //reference to graphics renderer (MyGame.graphics)
 // }
 //
 // --------------------------------------------------------------
