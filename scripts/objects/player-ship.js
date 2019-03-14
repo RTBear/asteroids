@@ -4,10 +4,12 @@
 //
 // spec = {
 //    hyperspaceStatus: , //float // how long until it can be used
+//    hyperspaceCooldown: , //float // how long between uses
 //    //I think I have to include the spec stuff for things I inherit from (Ship)
 //////////////////// SHIP ///////////////////////////////////////////////////////
 //    accelerationRate: , //float //speed per time
 //    turnRate: , //float //max rotations per time
+//    fireRate: , //float //max shots per time
 //
 //    //I think I have to include the spec stuff for things I inherit from (SpaceObject)
 //////////////////// SPACE OBJECT //////////////////////////////////////////////////////
@@ -25,22 +27,35 @@ MyGame.objects.PlayerShip = function (spec) {
 
     MyGame.objects.Ship.call(this, spec);//call Ship constructor
 
+    this.hyperspaceStatus = spec.hyperspaceStatus;
+    this.hyperspaceCooldown = spec.hyperspaceCooldown;
 }
 
 MyGame.objects.PlayerShip.prototype = Object.create(MyGame.objects.Ship.prototype);//inherit from Ship object
 
-MyGame.objects.SpaceObject.prototype.get_hyperspaceStatus = function() { return this.spec.hyperspaceStatus; }
+MyGame.objects.SpaceObject.prototype.get_hyperspaceStatus = function() { return this.hyperspaceStatus; }
+MyGame.objects.SpaceObject.prototype.set_hyperspaceStatus = function(hs) { this.hyperspaceStatus = hs; }
 
 MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
-    MyGame.objects.Ship.prototype.update.call(this);
-    // console.log('PlayerShip update');
+    MyGame.objects.Ship.prototype.update.call(this, elapsedTime);
+    if (this.hyperspaceStatus > 0){
+        this.hyperspaceStatus -= elapsedTime;
+    }else{
+        console.log('hyperspace ready');
+        this.hyperspaceStatus = 0;
+    }
 }
 
 MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
-    MyGame.objects.Ship.prototype.fire.call(this);
-    console.log('PlayerShip fire');
+    if(this.canFire()){
+        MyGame.objects.Ship.prototype.fire.call(this, elapsedTime);
+        console.log('PlayerShip fire]]]>({<-------------');
+    }
 }
 
 MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
-    // console.log('PlayerShip fire');
+    if(this.hyperspaceStatus == 0){
+        console.log('PlayerShip Hyperspace!!!');
+        this.hyperspaceStatus = this.hyperspaceCooldown; //reset cooldown
+    }
 }

@@ -5,6 +5,7 @@
 // spec = {
 //    accelerationRate: , //float //speed per time
 //    turnRate: , //float //max rotations per time
+//    fireRate: , //float //max shots per time
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 //    //I think I have to include the spec stuff for things I inherit from (SpaceObject)
@@ -12,8 +13,10 @@
 //    center: { x: , y: },
 //    size: { x: , y: },
 //    orientation: { x: , y: },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
+//    rotation: , //float //orientation angle
 //    maxSpeed: , //float //max magnitude of momentum
-//    graphics: reference to graphics renderer (MyGame.graphics)
+//    momentum: , //float //current momentum
+//    graphics: //reference to graphics renderer (MyGame.graphics)
 // }
 //
 // --------------------------------------------------------------
@@ -25,16 +28,16 @@ MyGame.objects.Ship = function (spec) {
     this.turnRate = spec.turnRate;
     this.accelerationRate = spec.accelerationRate;
     this.fireRate = spec.fireRate;
+    this.fireCountdown = this.fireRate;
 
 }
 
 MyGame.objects.Ship.prototype = Object.create(MyGame.objects.SpaceObject.prototype);//inherit from SpaceObject object
 
 //add inheritable functions
-
-MyGame.objects.SpaceObject.prototype.get_accelerationRate = function() { return this.spec.accelerationRate; }
-MyGame.objects.SpaceObject.prototype.get_turnRate = function() { 
-    return this.turnRate; 
+MyGame.objects.Ship.prototype.get_accelerationRate = function () { return this.accelerationRate; }
+MyGame.objects.Ship.prototype.get_turnRate = function () {
+    return this.turnRate;
 }
 
 MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
@@ -43,31 +46,40 @@ MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
 
 MyGame.objects.Ship.prototype.turnLeft = function (elapsedTime) {
     var rotation = this.get_rotation();
-    var newRotation = rotation*180/Math.PI - (elapsedTime * this.get_turnRate());
+    var newRotation = rotation * 180 / Math.PI - (elapsedTime * this.get_turnRate());
 
     this.set_orientation({
-        x: Math.sin(newRotation*Math.PI/180),
-        y: Math.cos(newRotation*Math.PI/180)
+        x: Math.sin(newRotation * Math.PI / 180),
+        y: Math.cos(newRotation * Math.PI / 180)
     });
-    this.set_rotation(newRotation*Math.PI/180);
+    this.set_rotation(newRotation * Math.PI / 180);
 }
 
 MyGame.objects.Ship.prototype.turnRight = function (elapsedTime) {
     var rotation = this.get_rotation();
-    var newRotation = rotation*180/Math.PI + (elapsedTime * this.get_turnRate());
+    var newRotation = rotation * 180 / Math.PI + (elapsedTime * this.get_turnRate());
 
     this.set_orientation({
-        x: Math.sin(newRotation*Math.PI/180),
-        y: Math.cos(newRotation*Math.PI/180)
+        x: Math.sin(newRotation * Math.PI / 180),
+        y: Math.cos(newRotation * Math.PI / 180)
     });
-    this.set_rotation(newRotation*Math.PI/180);
+    this.set_rotation(newRotation * Math.PI / 180);
 }
 
+MyGame.objects.Ship.prototype.canFire = function () { return this.fireCountdown == 0; }
 MyGame.objects.Ship.prototype.fire = function (elapsedTime) {
-    console.log('ship fire');
+    if (this.canFire()) {
+        console.log('ship fire-------');
+        this.fireCountdown = this.fireRate;
+    }
 }
 
 MyGame.objects.Ship.prototype.update = function (elapsedTime) {
-    MyGame.objects.SpaceObject.prototype.update.call(this);
-    // console.log('ship update');
+    MyGame.objects.SpaceObject.prototype.update.call(this, elapsedTime);
+    if (this.fireCountdown > 0) {
+        this.fireCountdown -= elapsedTime;
+    } else {
+        // console.log('Weapon ready');
+        this.fireCountdown = 0;
+    }
 }

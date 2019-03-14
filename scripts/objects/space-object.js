@@ -7,17 +7,26 @@
 //    center: { x: , y: },
 //    size: { x: , y: },
 //    orientation: { x: , y: },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
+//    rotation: , //float //orientation angle
 //    maxSpeed: , //float //max magnitude of momentum
-//    graphics: reference to graphics renderer (MyGame.graphics)
+//    momentum: , //float //current momentum
+//    graphics: //reference to graphics renderer (MyGame.graphics)
 // }
 //
 // --------------------------------------------------------------
 MyGame.objects.SpaceObject = function (spec) {
     'use strict';
+    this.rotation = spec.rotation;
+    
+    this.center = {};
+    this.center.x = spec.center.x;
+    this.center.y = spec.center.y;
+
+    this.orientation = {};
+    this.orientation.x = spec.orientation.x;
+    this.orientation.y = spec.orientation.y;
 
     this.momentum = spec.momentum;
-    this.orientation = spec.orientation;
-    this.rotation = spec.rotation;
     this.renderer = MyGame.render.SpaceObject(spec);
 
     this.updateRotation = function() {
@@ -25,8 +34,8 @@ MyGame.objects.SpaceObject = function (spec) {
     }
 }
 
-MyGame.objects.SpaceObject.prototype.get_center = function () { return this.spec.center; }
-MyGame.objects.SpaceObject.prototype.get_size = function () { return this.spec.size; }
+MyGame.objects.SpaceObject.prototype.get_center = function () { return this.center; }
+MyGame.objects.SpaceObject.prototype.get_size = function () { return this.size; }
 
 MyGame.objects.SpaceObject.prototype.get_rotation = function () { return this.rotation; }
 MyGame.objects.SpaceObject.prototype.set_rotation = function (rot) { this.rotation = rot; }
@@ -42,18 +51,15 @@ MyGame.objects.SpaceObject.prototype.set_orientation = function (orientation) {
     this.orientation.y = orientation.y;
 }
 
-MyGame.objects.SpaceObject.prototype.get_maxSpeed = function () { return this.spec.maxSpeed; }
+MyGame.objects.SpaceObject.prototype.get_maxSpeed = function () { return this.maxSpeed; }
 
 MyGame.objects.SpaceObject.prototype.get_momentum = function () { return this.momentum; }
 MyGame.objects.SpaceObject.prototype.set_momentum = function (momentum) { this.momentum = momentum; }
 
 MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {
-    //update state of object... maybe rotation?
-    // console.log('SpaceObject update');
     this.updateRotation();
 }
 
 MyGame.objects.SpaceObject.prototype.render = function () {
     this.renderer.render();
-    // MyGame.render.SpaceObject(this.spec).render();
 }

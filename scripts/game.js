@@ -30,16 +30,17 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     //     'assets/smoke-2.png');
 
     let player = new objects.PlayerShip({
-        hyperspaceStatus: 15 * 1000, //float // how long until it can be used (ms)
-
+        hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
+        hyperspaceCooldown: 5 * 1000,
         accelerationRate: 100, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        fireRate: 0.5, //float //max shots per time
+        fireRate: 0.5 * 1000, //float //max shots per time
+     
         imageSrc: './assets/ships/starship.svg',   // Web server location of the image
         center: { x: 300, y: 300 },
         size: { x: 50, y: 50 },
         orientation: { x: 0, y: 1},//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
-        rotation: 0,//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
+        rotation: 0,//orientation angle
         maxSpeed: 100, //float //max magnitude of momentum
         momentum: 0,
         graphics: graphics
@@ -81,6 +82,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     myKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(player));
     myKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(player));
     myKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(player));
+    myKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(player));
 
     requestAnimationFrame(gameLoop);
 }(MyGame.systems, MyGame.render, MyGame.graphics, MyGame.objects, MyGame.input));
