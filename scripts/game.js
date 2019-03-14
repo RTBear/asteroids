@@ -33,8 +33,8 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         hyperspaceStatus: 15 * 1000, //float // how long until it can be used (ms)
 
         accelerationRate: 100, //float //speed per time
-        turnRate: .1, //float //max rotations per time
-
+        turnRate: 0.5, //float //max rotations per time
+        fireRate: 0.5, //float //max shots per time
         imageSrc: './assets/ships/starship.svg',   // Web server location of the image
         center: { x: 300, y: 300 },
         size: { x: 50, y: 50 },
@@ -80,6 +80,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     myKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(player));
     myKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(player));
     myKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(player));
+    myKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(player));
 
     requestAnimationFrame(gameLoop);
 }(MyGame.systems, MyGame.render, MyGame.graphics, MyGame.objects, MyGame.input));

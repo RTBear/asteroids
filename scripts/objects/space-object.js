@@ -16,12 +16,12 @@ MyGame.objects.SpaceObject = function (spec) {
     'use strict';
 
     this.momentum = spec.momentum;
-    this.renderer = MyGame.render.SpaceObject(spec);
     this.orientation = spec.orientation;
     this.rotation = spec.rotation;
+    this.renderer = MyGame.render.SpaceObject(spec);
 
-    function updateRotation(howMuch) {
-        rotation += howMuch;
+    this.updateRotation = function() {
+        spec.rotation = this.rotation;
     }
 }
 
@@ -50,10 +50,10 @@ MyGame.objects.SpaceObject.prototype.set_momentum = function (momentum) { this.m
 MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {
     //update state of object... maybe rotation?
     // console.log('SpaceObject update');
+    this.updateRotation();
 }
 
 MyGame.objects.SpaceObject.prototype.render = function () {
-    // console.log('SpaceObject render');
     this.renderer.render();
     // MyGame.render.SpaceObject(this.spec).render();
 }

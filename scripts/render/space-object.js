@@ -9,8 +9,7 @@ MyGame.render.SpaceObject = function (spec) {
 
     function render() {
         if (isReady) {
-            // MyGame.graphics.drawTexture(image, spec.center, 2*Math.atan(spec.orientation.y/spec.orientation.x), spec.size); 
-            MyGame.graphics.drawTexture(image, spec.center, Math.atan(spec.orientation.x/spec.orientation.y), spec.size); 
+            MyGame.graphics.drawTexture(image, spec.center, spec.rotation, spec.size); 
         }
     }
 

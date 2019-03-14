@@ -17,13 +17,13 @@ MyGame.input.Keyboard = function () {
     that.update = function (elapsedTime) {
         for (let key in that.keys) {
             if (that.keys.hasOwnProperty(key)) {
-                // if (that.keys[key] != 'expired') {
+                // if (that.keys[key] != 'expired') {//uncomment to act only once per key press
                     if (that.handlers[key]) {
                         that.handlers[key](elapsedTime);
                         that.keys[key] = 'expired';
                     }
-                }
-            // }
+                // }
+            }
         }
     };
 

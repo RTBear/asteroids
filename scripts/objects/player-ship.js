@@ -38,7 +38,7 @@ MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
 
 MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     MyGame.objects.Ship.prototype.fire.call(this);
-    // console.log('PlayerShip fire');
+    console.log('PlayerShip fire');
 }
 
 MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
