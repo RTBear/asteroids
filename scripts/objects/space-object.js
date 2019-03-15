@@ -96,5 +96,12 @@ MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {
 }
 
 MyGame.objects.SpaceObject.prototype.render = function () {
+    if(('projectiles' in this) && this.projectiles.length > 0){
+        this.projectiles.forEach(function(projectile){
+            if (projectile != null){
+                projectile.render();
+            }
+        })
+    }
     this.renderer.render();
 }

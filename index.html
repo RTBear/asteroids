@@ -10,6 +10,8 @@
     <canvas id = "game-canvas" width = "600" height = "600"></canvas>
 
     <script>
+        const EDGE_BUFFER_MAX = 700;
+        const EDGE_BUFFER_MIN = -100;
         let MyGame = {
             systems: {},
             render: {},
@@ -26,6 +28,7 @@
     <script src = "scripts/objects/space-object.js"></script>
     <script src = "scripts/objects/ship.js"></script>
     <script src = "scripts/objects/player-ship.js"></script>
+    <script src = "scripts/objects/projectile.js"></script>
     <script src = "scripts/input/keyboard.js"></script>
     <script src = "scripts/game.js"></script>
 </body>
