@@ -40,26 +40,45 @@ MyGame.objects.Ship.prototype.get_turnRate = function () {
     return this.turnRate;
 }
 
+MyGame.objects.Ship.prototype.vectorMagnitude = function (v = { x: 0, y: 0 }) {
+    return Math.sqrt(v.x * v.x + v.y * v.y);
+}
+
 MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
-    console.log('ship accelerate');
     let current_momentum = this.get_momentum();
     let orientation = this.get_orientation();
     let max_speed = this.get_maxSpeed();
 
-    let new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
-    let new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
+    //if magnitude of momentum > max_speed
+    //  adjust it to hav magnitude such that mag(momentum) == max_speed
 
-    if(new_momentum_x > max_speed){
-        new_momentum_x = max_speed;
-    }else if(new_momentum_x < -max_speed){
-        new_momentum_x = -max_speed;
+
+    let new_momentum_x, new_momentum_y;
+
+    let current_mag_momentum = MyGame.objects.Ship.prototype.vectorMagnitude(current_momentum);//current magnitude of momentum
+
+    if (current_mag_momentum > max_speed) {
+        new_momentum_x = max_speed/current_mag_momentum * current_momentum.x;
+        new_momentum_y = max_speed/current_mag_momentum * current_momentum.y;
+
+    } else {
+
+        new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
+        new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
+
+        if (new_momentum_x > max_speed) {
+            new_momentum_x = max_speed;
+        } else if (new_momentum_x < -max_speed) {
+            new_momentum_x = -max_speed;
+        }
+
+        if (new_momentum_y > max_speed) {
+            new_momentum_y = max_speed;
+        } else if (new_momentum_y < -max_speed) {
+            new_momentum_y = -max_speed;
+        }
     }
 
-    if(new_momentum_y > max_speed){
-        new_momentum_y = max_speed;
-    }else if(new_momentum_y < -max_speed){
-        new_momentum_y = -max_speed;
-    }
 
     this.set_momentum({
         x: new_momentum_x,
@@ -106,12 +125,10 @@ MyGame.objects.Ship.prototype.update = function (elapsedTime) {
         this.fireCountdown = 0;
     }
 
-    //TODO: You move faster going diagonal b/c movement vector will max out at the corners (eg [1,1]) THIS IS BAD This basically makes you tend to move in a big X
-
     this.set_center({
         x: this.get_center().x + this.get_momentum().x,
         y: this.get_center().y - this.get_momentum().y,//minus because y0 is at top of screen
     })
-    console.log('m',this.get_momentum());
-    console.log('c',this.get_center());
+    // console.log('m', this.get_momentum());
+    // console.log('c', this.get_center());
 }

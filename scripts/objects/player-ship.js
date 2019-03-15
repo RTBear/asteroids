@@ -31,6 +31,8 @@ MyGame.objects.PlayerShip = function (spec) {
 
     this.hyperspaceStatus = spec.hyperspaceStatus;
     this.hyperspaceCooldown = spec.hyperspaceCooldown;
+
+    // this.fireSound = new Audio();
 }
 
 MyGame.objects.PlayerShip.prototype = Object.create(MyGame.objects.Ship.prototype);//inherit from Ship object

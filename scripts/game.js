@@ -41,7 +41,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         size: { x: 50, y: 50 },
         orientation: { x: 0, y: 1},//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
         rotation: 0,//orientation angle
-        maxSpeed: 1, //float //max magnitude of momentum
+        maxSpeed: 3, //float //max magnitude of momentum
         momentum: { x: 0, y: 0 },
         graphics: graphics,
     })
