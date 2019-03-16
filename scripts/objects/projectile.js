@@ -41,8 +41,8 @@ MyGame.objects.Projectile.prototype.accelerate = function (elapsedTime) {
 
     let current_mag_momentum = MyGame.objects.Ship.prototype.vectorMagnitude(current_momentum);//current magnitude of momentum
     
-    let new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
-    let new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
+    let new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate * elapsedTime);
+    let new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate * elapsedTime);
 
     let new_mag_momentum = MyGame.objects.Ship.prototype.vectorMagnitude({ x: new_momentum_x, y: new_momentum_y });//new magnitude of momentum
 

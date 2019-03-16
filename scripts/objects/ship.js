@@ -63,8 +63,8 @@ MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
 
     } else {
 
-        new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
-        new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
+        new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate * elapsedTime);
+        new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate * elapsedTime);
 
         if (new_momentum_x > max_speed) {
             new_momentum_x = max_speed;
