@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Asteroids</title>
     <link rel="stylesheet" type="text/css" href="styles/game.css">
+    <link rel="icon" href="./favicon.png" type="image/x-icon">
 </head>
 
 <body>
@@ -12,7 +13,7 @@
     <canvas id="game-canvas" width="600" height="600"></canvas>
 
     <script>
-        const ALMOST_ZERO = 0.000001
+        const ALMOST_ZERO = 0.000001; //gameplay constants
         const EDGE_BUFFER_MAX = 700;
         const EDGE_BUFFER_MIN = -100;
         let MyGame = {
@@ -32,6 +33,7 @@
     <script src="scripts/objects/ship.js"></script>
     <script src="scripts/objects/player-ship.js"></script>
     <script src="scripts/objects/projectile.js"></script>
+    <script src="scripts/objects/game-model.js"></script>
     <script src="scripts/input/keyboard.js"></script>
     <script src="scripts/game.js"></script>
 </body>

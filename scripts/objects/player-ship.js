@@ -89,7 +89,6 @@ MyGame.objects.PlayerShip.prototype.nextGunToFire = function () {
 MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     if (this.canFire()) {
         MyGame.objects.Ship.prototype.fire.call(this, elapsedTime);
-        console.log('PlayerShip fire]]]>({<-------------');
 
         let current_location = this.get_center();
         let current_orientation = this.get_orientation();

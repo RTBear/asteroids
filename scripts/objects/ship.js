@@ -111,7 +111,6 @@ MyGame.objects.Ship.prototype.turnRight = function (elapsedTime) {
 MyGame.objects.Ship.prototype.canFire = function () { return this.fireCountdown == 0; }
 MyGame.objects.Ship.prototype.fire = function (elapsedTime) {
     if (this.canFire()) {
-        console.log('ship fire-------');
         this.fireCountdown = this.fireRate;
     }
 }
