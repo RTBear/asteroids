@@ -44,10 +44,8 @@ MyGame.objects.SpaceObject = function (spec) {
         size: this.size,
     });
 
-    this.updateRotation = function() {//pretty sure this is a "bug" ie not intended behavior as a result of the renderer 
-        spec.rotation = this.rotation;
-    }
 }
+// MyGame.objects.SpaceObject.prototype = Object.create(MyGame.objects.GameModel.prototype);//inherit from GameModel object //THIS IS WRONG?
 
 MyGame.objects.SpaceObject.prototype.get_size = function () { return this.size; }
 
@@ -91,17 +89,9 @@ MyGame.objects.SpaceObject.prototype.set_center = function (center) {
 }
 
 MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {
-    this.updateRotation();
-    // console.log((this.rotation * 180/Math.PI + 360) % 360)
+    //do stuff
 }
 
 MyGame.objects.SpaceObject.prototype.render = function () {
-    if(('projectiles' in this) && this.projectiles.length > 0){
-        this.projectiles.forEach(function(projectile){
-            if (projectile != null){
-                projectile.render();
-            }
-        })
-    }
     this.renderer.render();
 }

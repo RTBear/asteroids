@@ -3,7 +3,7 @@
 // Creates a GameModel object, with functions for managing state.
 //
 // --------------------------------------------------------------
-MyGame.objects.GameModel = function (spec) {
+MyGame.objects.GameModel = function () {
     'use strict';
 
     this.entities = [];//array of SpaceStates //TODO
@@ -14,6 +14,8 @@ MyGame.objects.GameModel = function (spec) {
         turnRate: 0.5, //float //max rotations per time
         fireRate: 0.3 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
         // fireRate: 0.05 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        projectileSpeed: 10,
+        projectileAccelerationRate: 1000,
 
         imageSrc: './assets/ships/starship.svg',   // Web server location of the image
         center: { x: 300, y: 300 },
@@ -33,13 +35,6 @@ MyGame.objects.GameModel = function (spec) {
     this.score = 0; //int //current score
     this.level = 0; //int //current level
 
-    // this.renderer = MyGame.render.GameModel({// TODO: maybe make this a player renderer (handle scope here instead of making sure it is passed by reference from the space-object)
-    //     imageSrc: spec.imageSrc,
-    //     center: this.center,
-    //     rotation: this.rotation,//these are intentionally passed by reference
-    //     size: this.size,
-    // });
-
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
@@ -58,6 +53,21 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
 
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     this.player.update(elapsedTime);
+    Array.prototype.push.apply(this.projectiles,this.player.projectiles);
+    this.player.projectiles = [];//memory leak? do i need to null out the array first?
+
+    //clean up any out-of-bounds projectiles
+    let projectiles_copy = this.projectiles;
+    this.projectiles.forEach(function (projectile, index) {
+        if (projectile != null) {
+            if (projectile.center.x > EDGE_BUFFER_MAX || projectile.center.x < EDGE_BUFFER_MIN || projectile.center.y > EDGE_BUFFER_MAX || projectile.center.y < EDGE_BUFFER_MIN) {
+                projectiles_copy[index] = null;//destroy out of bounds projectiles
+            } else {
+                projectile.update();
+            }
+        }
+    })
+    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 }
 
 MyGame.objects.GameModel.prototype.render = function () {
@@ -68,5 +78,5 @@ MyGame.objects.GameModel.prototype.render = function () {
         }
     })
     // }
-    this.renderer.render();
+    this.player.renderer.render();
 }

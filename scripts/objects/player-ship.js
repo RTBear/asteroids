@@ -5,6 +5,8 @@
 // spec = {
 //    hyperspaceStatus: , //float // how long until it can be used
 //    hyperspaceCooldown: , //float // how long between uses
+//    projectileSpeed: , //float //max speed (momentum) of projectiles
+//    projectileAccelerationRate: , //float //acceleration rate of projectiles
 //    //I think I have to include the spec stuff for things I inherit from (Ship)
 //////////////////// SHIP ///////////////////////////////////////////////////////
 //    accelerationRate: , //float //speed per time
@@ -32,8 +34,8 @@ MyGame.objects.PlayerShip = function (spec) {
     this.hyperspaceStatus = spec.hyperspaceStatus;
     this.hyperspaceCooldown = spec.hyperspaceCooldown;
 
-    this.projectileSpeed = 10;
-    this.projectileAccelerationRate = 1000;
+    this.projectileSpeed = spec.projectileSpeed;
+    this.projectileAccelerationRate = spec.projectileAccelerationRate;
 
     this.projectiles = [];//array containing lasers
     this.lastGunFired = 3;
@@ -54,18 +56,6 @@ MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
         console.log('hyperspace ready');
         this.hyperspaceStatus = 0;
     }
-    let projectiles_copy = this.projectiles;
-    this.projectiles.forEach(function (laser, index) { //TODO: this should be handled by the game model :O
-        if (laser != null) {
-            // console.log('laser', laser.center)
-            if (laser.center.x > EDGE_BUFFER_MAX || laser.center.x < EDGE_BUFFER_MIN || laser.center.y > EDGE_BUFFER_MAX || laser.center.y < EDGE_BUFFER_MIN) {
-                projectiles_copy[index] = null;//destroy out of bounds projectiles
-            } else {
-                laser.update();
-            }
-        }
-    })
-    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
 }
 MyGame.objects.PlayerShip.prototype.nextGunToFire = function () {
@@ -124,7 +114,6 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
             momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
             graphics: this.graphics//reference to graphics renderer (MyGame.graphics)
         });
-
 
         this.projectiles.push(laser);
 
