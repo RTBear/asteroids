@@ -34,7 +34,8 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         hyperspaceCooldown: 5 * 1000,
         accelerationRate: 0.1, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        fireRate: 0.5 * 1000, //float //max shots per time
+        fireRate: 0.5 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
+        // fireRate: 0.1 * 1000, //float //max shots per time ///////// JUST FOR FUN
      
         imageSrc: './assets/ships/starship.svg',   // Web server location of the image
         center: { x: 300, y: 300 },
@@ -81,6 +82,11 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     myKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(player));
     myKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(player));
     myKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(player));
+
+    myKeyboard.register('w', objects.Ship.prototype.accelerate.bind(player));
+    myKeyboard.register('d', objects.Ship.prototype.turnRight.bind(player));
+    myKeyboard.register('a', objects.Ship.prototype.turnLeft.bind(player));
+
     myKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(player));
     myKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(player));
 

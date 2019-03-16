@@ -39,36 +39,22 @@ MyGame.objects.Projectile.prototype.accelerate = function (elapsedTime) {
     let orientation = this.get_orientation();
     let max_speed = this.get_maxSpeed();
 
-    //if magnitude of momentum > max_speed
-    //  adjust it to hav magnitude such that mag(momentum) == max_speed
-
-
-    let new_momentum_x, new_momentum_y;
-
     let current_mag_momentum = MyGame.objects.Ship.prototype.vectorMagnitude(current_momentum);//current magnitude of momentum
+    
+    let new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
+    let new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
 
-    if (current_mag_momentum > max_speed) {
-        new_momentum_x = max_speed/current_mag_momentum * current_momentum.x;
-        new_momentum_y = max_speed/current_mag_momentum * current_momentum.y;
+    let new_mag_momentum = MyGame.objects.Ship.prototype.vectorMagnitude({ x: new_momentum_x, y: new_momentum_y });//new magnitude of momentum
 
-    } else {
-
-        new_momentum_x = current_momentum.x + (orientation.x * this.accelerationRate);
-        new_momentum_y = current_momentum.y + (orientation.y * this.accelerationRate);
-
-        if (new_momentum_x > max_speed) {
-            new_momentum_x = max_speed;
-        } else if (new_momentum_x < -max_speed) {
-            new_momentum_x = -max_speed;
-        }
-
-        if (new_momentum_y > max_speed) {
-            new_momentum_y = max_speed;
-        } else if (new_momentum_y < -max_speed) {
-            new_momentum_y = -max_speed;
+    if (new_mag_momentum > max_speed) {//if going too fast, slow down
+        if (current_mag_momentum != 0) {
+            new_momentum_x = max_speed / current_mag_momentum * current_momentum.x;//make new magnitude length of max speed
+            new_momentum_y = max_speed / current_mag_momentum * current_momentum.y;
+        } else {
+            new_momentum_x = ALMOST_ZERO * orientation.x;//make new magnitude length of max speed
+            new_momentum_y = ALMOST_ZERO * orientation.y;
         }
     }
-
 
     this.set_momentum({
         x: new_momentum_x,
@@ -85,8 +71,4 @@ MyGame.objects.Projectile.prototype.update = function (elapsedTime) {
         x: this.get_center().x + this.get_momentum().x,
         y: this.get_center().y - this.get_momentum().y,//minus because y0 is at top of screen
     })
-    // console.log('m', this.get_momentum());
-    // console.log('c', this.get_center());
-
-    // this.renderer.render();
 }

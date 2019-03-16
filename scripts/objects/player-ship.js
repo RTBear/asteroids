@@ -36,6 +36,7 @@ MyGame.objects.PlayerShip = function (spec) {
     this.projectileAccelerationRate = 1000;
 
     this.projectiles = [];//array containing lasers
+    this.lastGunFired = 3;
 
     // this.fireSound = new Audio();
 }
@@ -64,10 +65,25 @@ MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
             }
         }
     })
-    console.log('lasers',this.projectiles)
-    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by
-    console.log('clean lasers',this.projectiles)
+    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
+}
+MyGame.objects.PlayerShip.prototype.nextGunToFire = function () {
+    if (this.lastGunFired == 0) {
+        this.lastGunFired = 3;
+        return 3;
+    } else if (this.lastGunFired == 1) {
+        this.lastGunFired = 2;
+        return 2;
+    } else if (this.lastGunFired == 2) {
+        this.lastGunFired = 0;
+        return 0;
+    } else if (this.lastGunFired == 3) {
+        this.lastGunFired = 1;
+        return 1;
+    }
+    this.lastGunFired = 3;//shouldn't get here
+    return 1;
 }
 
 MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
@@ -77,9 +93,23 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
 
         let current_location = this.get_center();
         let current_orientation = this.get_orientation();
-        let current_momentum = this.get_momentum();
         let current_rotation = this.get_rotation();
         // console.log('ship center',current_momentum,current_momentum.x,current_momentum.y, typeof current_momentum.x)
+
+        let gun0_x = current_location.x - current_orientation.y * 15.5;
+        let gun0_y = current_location.y - current_orientation.x * 15.5;
+
+        let gun1_x = current_location.x - current_orientation.y * 9.5;
+        let gun1_y = current_location.y - current_orientation.x * 9.5;
+
+        let gun2_x = current_location.x + current_orientation.y * 9.5;
+        let gun2_y = current_location.y + current_orientation.x * 9.5;
+
+        let gun3_x = current_location.x + current_orientation.y * 15.5;
+        let gun3_y = current_location.y + current_orientation.x * 15.5;
+
+        let guns = [{ x: gun0_x, y: gun0_y }, { x: gun1_x, y: gun1_y }, { x: gun2_x, y: gun2_y }, { x: gun3_x, y: gun3_y }]
+        let nextGunToFire = this.nextGunToFire();
 
         let laser = new MyGame.objects.Projectile({
             owner: this, //reference to owner ship
@@ -87,12 +117,12 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
 
             // imageSrc: './assets/ships/starship.svg',   // Web server location of the image
             imageSrc: './assets/projectiles/projectile2.svg',   // Web server location of the image
-            center: { x: current_location.x, y: current_location.y },
-            size: { x: 50, y: 50 },
+            center: { x: guns[nextGunToFire].x, y: guns[nextGunToFire].y },
+            size: { x: 30, y: 30 },
             orientation: { x: current_orientation.x, y: current_orientation.y },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
             rotation: current_rotation, //float //orientation angle
             maxSpeed: this.projectileSpeed, //float //max magnitude of momentum
-            momentum: { x: 0, y: 0 }, //vector //current momentum
+            momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
             graphics: this.graphics//reference to graphics renderer (MyGame.graphics)
         });
 
