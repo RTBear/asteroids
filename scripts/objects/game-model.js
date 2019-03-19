@@ -52,8 +52,9 @@ MyGame.objects.GameModel = function () {
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
     this.score = 0; //int //current score
     this.level = 0; //int //current level
+    this.gameOver = false; //is game over?
 
-    this.asteroidSpawnTimeRange = { min: 0.5 * 1000, max: 2 * 1000 }; //range in milliseconds //TODO: maybe for further levels, modify max by the level (max/ level#) so they occur more frequently
+    this.asteroidSpawnTimeRange = { min: 0.1 * 1000, max: 1 * 1000 }; //range in milliseconds //TODO: maybe for further levels, modify max by the level (max/ level#) so they occur more frequently
     this.currentAsteroidSpawnTimer = Random.nextRange(this.asteroidSpawnTimeRange.min, this.asteroidSpawnTimeRange.max);
 
     this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
@@ -136,8 +137,8 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     // console.log(spec.orientation)
 
     spec.momentum = {};
-    spec.momentum.x = spec.orientation.x * Random.nextRange(100, spec.maxSpeed * 200) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
-    spec.momentum.y = spec.orientation.y * Random.nextRange(100, spec.maxSpeed * 200) / spec.size.x;//larger asteroids will move slower
+    spec.momentum.x = spec.orientation.x * Random.nextRange(150, spec.maxSpeed * 200) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
+    spec.momentum.y = spec.orientation.y * Random.nextRange(150, spec.maxSpeed * 200) / spec.size.x;//larger asteroids will move slower
 
     let asteroid = new MyGame.objects.Asteroid(spec)
     console.log(asteroid);
@@ -149,6 +150,11 @@ MyGame.objects.GameModel.prototype.generateUFO = function () {
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
+    console.log('asters', this.asteroids);
+
+    console.log('obj1', obj1);
+    console.log('obj2', obj2);
+
     //check for collisions
     // for(let i = 0; i < obj1.length)
     if (!obj1.collider[0][0].overlapsCircle(obj2.collider[0][0].center.x, obj2.collider[0][0].center.y, obj2.collider[0][0].circumference)) {
@@ -241,7 +247,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.currentAsteroidSpawnTimer -= elapsedTime;
     } else {
         // console.log('ASTEROID CREATED');
-        // this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//even distribution
+        this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//even distribution
         // this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//more mediums
         this.currentAsteroidSpawnTimer = Random.nextRange(this.asteroidSpawnTimeRange.min, this.asteroidSpawnTimeRange.max);
     }
@@ -266,15 +272,27 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
     }
 
-    // if(this.collides(this.player,this.asteroids[0])){
-    //     console.log("COLLISION--------")
-    // }
+    for (let ast in this.asteroids) {
+        if(this.collides(this.player,this.asteroids[ast])){
+            console.log('####################################');
+            console.log('####################################');
+            console.log('MAN DOWN');
+            console.log('####################################');
+            console.log('####################################');
+            this.gameOver = true;
+            return;
+        }
+    }
+    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND ASTEROIDS FOR TESTING
     for (let ast in this.asteroids) {
         for (let laser in this.projectiles) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
                 console.log('HIT');
-                this.projectiles[laser] = null;
+                console.log('lasers', this.projectiles)
                 this.notifyAsteroid(this.asteroids[ast]);
+                this.projectiles[laser] = null;
+                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds asteroids
+                break;
             }
         }
     }

@@ -31,6 +31,10 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
     let gameModel = new objects.GameModel();
 
+    function gameOver(){
+        console.log("GAME OVER");
+    }
+
     function update(elapsedTime) {
         particlesFire.update(elapsedTime);
         // particlesSmoke.update(elapsedTime);
@@ -54,15 +58,17 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     }
 
     function gameLoop(time) {
-        let elapsedTime = (time - lastTimeStamp);
+        if (!gameModel.gameOver) {
+            let elapsedTime = (time - lastTimeStamp);
+            update(elapsedTime);
+            processInput(elapsedTime);
 
-        update(elapsedTime);
-        processInput(elapsedTime);
+            render();
+            requestAnimationFrame(gameLoop);
+        }else{
+            gameOver();
+        }
         lastTimeStamp = time;
-        
-        render();
-
-        requestAnimationFrame(gameLoop);
     };
 
     //register inputs
