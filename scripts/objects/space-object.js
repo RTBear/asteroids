@@ -22,9 +22,18 @@ MyGame.objects.SpaceObject = function (spec) {
     this.center.y = spec.center.y;
 
     this.size = {};
-    this.size.x = spec.size.x;
+    this.size.x = spec.size.x;//TODO: For now could use this (the larger of x or y) as diameter for bounding circle... ideally should sub-divide or maybe add a "collider" property
     this.size.y = spec.size.y;
-    
+
+    this.collider = [];//array of hierarchical bounding sub-divisions e.g. [[circle1],[circle2,circle3,circle4]] where circle1 is largest, outermost bounding circle and circles 2-4 are inner circles. Can add as many layers as desired.
+    if(this.size.x > this.size.y){
+        //if wider than tall
+        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x)]);
+    }else{
+        //if taller than wide
+        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y)]);
+    }
+
     this.orientation = {};
     this.orientation.x = spec.orientation.x;
     this.orientation.y = spec.orientation.y;
@@ -88,8 +97,34 @@ MyGame.objects.SpaceObject.prototype.set_center = function (center) {
     this.center.y = center.y; 
 }
 
+MyGame.objects.SpaceObject.prototype.update_collider = function() {
+    //compute change in x,y
+    //re-compute sub-circles //TODO: do this later, only worrying about one circle for now.
+    //rotate to match rotation //TODO: do this later, only worrying about one circle for now.
+
+    let delta_x = this.center.x - this.collider[0][0].center.x;
+    let delta_y = this.center.y - this.collider[0][0].center.y;
+
+    //update outer bound
+    for(let level = 0; level < this.collider.length; level++){
+        for(let circ = 0; circ < this.collider[level].length; circ++){
+            this.collider[level][circ].center.x += delta_x;
+            this.collider[level][circ].center.y += delta_y;
+        }
+    }
+
+
+    if(this.size.x > this.size.y){
+        //if wider than tall
+        this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x));
+    }else{
+        //if taller than wide
+        this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y));
+    }
+}
+
 MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {
-    //do stuff
+    this.update_collider();
 }
 
 MyGame.objects.SpaceObject.prototype.render = function () {

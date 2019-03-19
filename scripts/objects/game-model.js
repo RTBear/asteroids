@@ -31,6 +31,24 @@ MyGame.objects.GameModel = function () {
     this.asteroids = []; //array of Asteroid objects
     this.projectiles = []; //array of Projectile objects
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    let testAsteroid = new MyGame.objects.Asteroid({
+        rotationRate: 0.01, //float //rotations per time
+        rotationDirection: 1, //float // direction (>=0 is right; <0 is left;)
+
+        imageSrc: './assets/asteroids/ball_gray.svg',   // Web server location of the image
+        center: { x: 200, y: 200 },
+        size: { x: ASTEROID_SIZES.MEDIUM, y: ASTEROID_SIZES.MEDIUM },
+        orientation: { x: 1, y: 0 },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
+        rotation: 0, //float //orientation angle
+        maxSpeed: 0, //float //max magnitude of momentum
+        momentum: { x: 0, y: 0 }, //vector //current momentum
+        graphics: MyGame.graphics
+    });
+    this.asteroids.push(testAsteroid);
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
     this.score = 0; //int //current score
     this.level = 0; //int //current level
@@ -42,89 +60,97 @@ MyGame.objects.GameModel = function () {
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
 }
-MyGame.objects.GameModel.prototype.choose = function(list){
+MyGame.objects.GameModel.prototype.choose = function (list) {
     //choose a random item from a list
-    index = Random.nextRange(0,list.length);
+    index = Random.nextRange(0, list.length);
     return list[index];
 }
 MyGame.objects.GameModel.prototype.generateAsteroid = function (size) {
     spec = {
         rotationRate: Random.nextRange(1, 15) / 100,
         rotationDirection: Random.nextRange(-1, 2),
-        
+
         maxSpeed: Random.nextRange(10, 20) / 10, //float //max magnitude of momentum 10,25 would be 1 to 2.5
         graphics: MyGame.graphics,
     }
     //these will vary by asteroid size
     //TODO: do something like I did with "sides" and have each image associated with a color (so I can have the particle effects be the same color)
-    asteroidImageOptions = ['./assets/asteroids/ball_gray.svg','./assets/asteroids/ball_red.svg','./assets/asteroids/ball_yellow.svg'];
+    asteroidImageOptions = ['./assets/asteroids/ball_gray.svg', './assets/asteroids/ball_red.svg', './assets/asteroids/ball_yellow.svg'];
     spec.imageSrc = this.choose(asteroidImageOptions);
     spec.size = {};
     spec.size.x = size;
     spec.size.y = spec.size.x;
-    
+
     //starting location will be random
     const BUFFER = 10;
     let sides = {
         top: {
             zone: 'top',
-            x: Random.nextRange(EDGE_BUFFER_MIN+2*BUFFER,EDGE_BUFFER_MAX-2*BUFFER),
-            y: EDGE_BUFFER_MAX-BUFFER,
+            x: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
+            y: EDGE_BUFFER_MAX - BUFFER,
             rotation: Random.nextRange(225, 315) * Math.PI / 180,
         },
         right: {
             zone: 'right',
-            x: EDGE_BUFFER_MAX-BUFFER,
-            y: Random.nextRange(EDGE_BUFFER_MIN + 2*BUFFER, EDGE_BUFFER_MAX - 2*BUFFER),
+            x: EDGE_BUFFER_MAX - BUFFER,
+            y: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
             rotation: Random.nextRange(135, 225) * Math.PI / 180,
         },
         bottom: {
             zone: 'bottom',
-            x: Random.nextRange(EDGE_BUFFER_MIN+2*BUFFER,EDGE_BUFFER_MAX-2*BUFFER),
-            y: EDGE_BUFFER_MIN+BUFFER,
+            x: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
+            y: EDGE_BUFFER_MIN + BUFFER,
             rotation: Random.nextRange(45, 135) * Math.PI / 180,
         },
         left: {
             zone: 'left',
-            x: EDGE_BUFFER_MIN+BUFFER,
-            y: Random.nextRange(EDGE_BUFFER_MIN+2*BUFFER,EDGE_BUFFER_MAX-2*BUFFER),
+            x: EDGE_BUFFER_MIN + BUFFER,
+            y: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
             rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
         }
     }
-    
-    spawnPoint = this.choose([sides.top,sides.right,sides.bottom,sides.left]);
-    
+
+    spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
+
     spec.center = {};
     spec.center.x = spawnPoint.x;
     spec.center.y = spawnPoint.y;
-    
+
     // spec.rotation = Random.nextRange(0, 361) * Math.PI / 180;//orientation angle
     spec.rotation = spawnPoint.rotation;//orientation angle
-    console.log(spawnPoint.zone)
-    console.log(spec.rotation * 180/Math.PI)
+    // console.log(spawnPoint.zone)
+    // console.log(spec.rotation * 180 / Math.PI)
     //also random
     spec.orientation = {};
-    spec.orientation.x =  Math.cos(spec.rotation);
-    spec.orientation.y =  Math.sin(spec.rotation);
+    spec.orientation.x = Math.cos(spec.rotation);
+    spec.orientation.y = Math.sin(spec.rotation);
     // console.log(spec.orientation)
-    
+
     spec.momentum = {};
-    spec.momentum.x = spec.orientation.x * Random.nextRange(100,spec.maxSpeed*200) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
-    spec.momentum.y = spec.orientation.y * Random.nextRange(100,spec.maxSpeed*200) / spec.size.x;//larger asteroids will move slower
-    
+    spec.momentum.x = spec.orientation.x * Random.nextRange(100, spec.maxSpeed * 200) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
+    spec.momentum.y = spec.orientation.y * Random.nextRange(100, spec.maxSpeed * 200) / spec.size.x;//larger asteroids will move slower
+
     let asteroid = new MyGame.objects.Asteroid(spec)
     this.asteroids.push(asteroid);
 }
 
 MyGame.objects.GameModel.prototype.generateUFO = function () {
-    
+
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
     //check for collisions
+    // for(let i = 0; i < obj1.length)
+    if (!obj1.collider[0][0].overlapsCircle(obj2.collider[0][0].center.x, obj2.collider[0][0].center.y, obj2.collider[0][0].circumference)) {
+        //outer bounding boxes do not collide; fail early
+        return false;
+    }
+    // let x2 = obj2.center.x;
+    // let y2 = obj2.center.y;
+    // let c2 = obj2.center.circum
 
     //return boolean
-    return false;//nothing collides for now
+    return true;//nothing collides for now
 }
 
 MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
@@ -136,6 +162,17 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
     //do stuff
     //tell projectile it was collided with
 }
+
+////////////////////////////////////////////////////////////
+//  _______  _______  ______   _______ _________ _______  //
+// |\     /|(  ____ )(  __  \ (  ___  )\__   __/(  ____ \ //
+// | )   ( || (    )|| (  \  )| (   ) |   ) (   | (    \/ //
+// | |   | || (____)|| |   ) || (___) |   | |   | (__     //
+// | |   | ||  _____)| |   | ||  ___  |   | |   |  __)    //
+// | |   | || (      | |   ) || (   ) |   | |   | (       //
+// | (___) || )      | (__/  )| )   ( |   | |   | (____/\ //
+// (_______)|/       (______/ |/     \|   )_(   (_______/ //
+////////////////////////////////////////////////////////////                                                   
 
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     // console.log(this.asteroids)
@@ -159,7 +196,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     if (this.currentAsteroidSpawnTimer > 0) {
         this.currentAsteroidSpawnTimer -= elapsedTime;
     } else {
-        console.log('ASTEROID CREATED');
+        // console.log('ASTEROID CREATED');
         // this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//even distribution
         this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//more mediums
         this.currentAsteroidSpawnTimer = Random.nextRange(this.asteroidSpawnTimeRange.min, this.asteroidSpawnTimeRange.max);
@@ -184,6 +221,10 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         console.log('UFO CREATED');
         this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
     }
+
+    // if(this.collides(this.player,this.asteroids[0])){
+    //     console.log("COLLISION--------")
+    // }
 }
 
 MyGame.objects.GameModel.prototype.render = function () {

@@ -4,6 +4,8 @@ body
     background-image: url('../assets/stars-on-black.png');
     background-size: 500px;
     font-size: 15px;
+    color: white;
+    font-family: monospace;
 }
 
 #game-canvas
@@ -19,8 +21,12 @@ body
 }
 
 #game-title {
-    color: white;
     text-align: center;
     margin: 15px auto;
     font-size: 5em;
+}
+
+#current-score {
+    text-align: center;
+    font-size: 1.5em;
 }

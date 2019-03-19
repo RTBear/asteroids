@@ -11,7 +11,10 @@
 <body>
     <h1 id="game-title">Asteroids</h1>
     <canvas id="game-canvas" width="600" height="600"></canvas>
-
+    <div id="current-score">
+        <p><strong>Score:</strong> 00000</p>
+        <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
+    </div>
     <script>
         const ALMOST_ZERO = 0.000001; //gameplay constants
         const ASTEROID_SIZES = {
@@ -44,6 +47,8 @@
     <script src="scripts/objects/game-model.js"></script>
     <script src="scripts/objects/asteroid.js"></script>
     <script src="scripts/objects/ufo.js"></script>
+    <script src="scripts/objects/circle.js"></script>
+    <script src="scripts/collision-tree.js"></script>
     <script src="scripts/input/keyboard.js"></script>
     <script src="scripts/game.js"></script>
 </body>
