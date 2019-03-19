@@ -16,6 +16,7 @@
         <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
     </div>
     <script>
+        const GAME_SIZE = 600;//game must be square and size should match the html canvas
         const ALMOST_ZERO = 0.000001; //gameplay constants
         const ASTEROID_SIZES = {
             SMALL: 50,
@@ -23,7 +24,7 @@
             LARGE: 200
         }
         const EDGE_BUFFER = ASTEROID_SIZES.LARGE / 2;
-        const EDGE_BUFFER_MAX = 600+EDGE_BUFFER;
+        const EDGE_BUFFER_MAX = GAME_SIZE + EDGE_BUFFER;
         const EDGE_BUFFER_MIN = 0-EDGE_BUFFER;
 
 
