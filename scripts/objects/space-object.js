@@ -53,10 +53,14 @@ MyGame.objects.SpaceObject = function (spec) {
         size: this.size,
     });
 
+    this.expired = false;
+
 }
 // MyGame.objects.SpaceObject.prototype = Object.create(MyGame.objects.GameModel.prototype);//inherit from GameModel object //THIS IS WRONG?
 
 MyGame.objects.SpaceObject.prototype.get_size = function () { return this.size; }
+
+MyGame.objects.SpaceObject.prototype.remove = function(){ this.expired = true; }//doesn't actually remove object, just flags it for removal by gameModel
 
 MyGame.objects.SpaceObject.prototype.get_rotation = function () { return this.rotation.value; }
 MyGame.objects.SpaceObject.prototype.set_rotation = function (rot) {
@@ -95,6 +99,17 @@ MyGame.objects.SpaceObject.prototype.get_center = function () {
 MyGame.objects.SpaceObject.prototype.set_center = function (center) { 
     this.center.x = center.x; 
     this.center.y = center.y; 
+
+    if (this.center.x > GAME_SIZE_X){
+        this.center.x = 0;
+    }else if (this.center.x < 0){
+        this.center.x = GAME_SIZE_X;
+    }
+    if (this.center.y > GAME_SIZE_Y){
+        this.center.y = 0;
+    }else if (this.center.y < 0){
+        this.center.y = GAME_SIZE_Y;
+    }
 }
 
 MyGame.objects.SpaceObject.prototype.update_collider = function() {

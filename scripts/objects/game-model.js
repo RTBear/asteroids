@@ -31,31 +31,14 @@ MyGame.objects.GameModel = function () {
     this.asteroids = []; //array of Asteroid objects
     this.projectiles = []; //array of Projectile objects
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    let testAsteroid = new MyGame.objects.Asteroid({
-        rotationRate: 0.01, //float //rotations per time
-        rotationDirection: 1, //float // direction (>=0 is right; <0 is left;)
-
-        imageSrc: './assets/asteroids/ball_gray.svg',   // Web server location of the image
-        center: { x: 300, y: 100 },
-        size: { x: ASTEROID_SIZES.LARGE, y: ASTEROID_SIZES.LARGE },
-        orientation: { x: 1, y: 0 },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
-        rotation: 0, //float //orientation angle
-        maxSpeed: 0, //float //max magnitude of momentum
-        momentum: { x: 0, y: 0 }, //vector //current momentum
-        graphics: MyGame.graphics
-    });
-    this.asteroids.push(testAsteroid);
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
     this.score = 0; //int //current score
-    this.level = 0; //int //current level
+    this.level = 1; //int //current level
     this.gameOver = false; //is game over?
-
-    this.asteroidSpawnTimeRange = { min: 0.1 * 1000, max: 1 * 1000 }; //range in milliseconds //TODO: maybe for further levels, modify max by the level (max/ level#) so they occur more frequently
-    this.currentAsteroidSpawnTimer = Random.nextRange(this.asteroidSpawnTimeRange.min, this.asteroidSpawnTimeRange.max);
+    this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
+   
+    this.maxAsteroidSpeedModifier = 100;
+    this.minAsteroidSpeed = 0.01;
 
     this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
@@ -91,30 +74,29 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     } else {
 
         //starting location will be random unless specified
-        const BUFFER = 10;
         let sides = {
             top: {
                 zone: 'top',
-                x: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
-                y: EDGE_BUFFER_MAX - BUFFER,
+                x: Random.nextRange(0, GAME_SIZE_X),
+                y: GAME_SIZE_Y,
                 rotation: Random.nextRange(225, 315) * Math.PI / 180,
             },
             right: {
                 zone: 'right',
-                x: EDGE_BUFFER_MAX - BUFFER,
-                y: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
+                x: GAME_SIZE_X,
+                y: Random.nextRange(0, GAME_SIZE_Y),
                 rotation: Random.nextRange(135, 225) * Math.PI / 180,
             },
             bottom: {
                 zone: 'bottom',
-                x: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
-                y: EDGE_BUFFER_MIN + BUFFER,
+                x: Random.nextRange(0, GAME_SIZE_X),
+                y: 0,
                 rotation: Random.nextRange(45, 135) * Math.PI / 180,
             },
             left: {
                 zone: 'left',
-                x: EDGE_BUFFER_MIN + BUFFER,
-                y: Random.nextRange(EDGE_BUFFER_MIN + 2 * BUFFER, EDGE_BUFFER_MAX - 2 * BUFFER),
+                x: 0,
+                y: Random.nextRange(0, GAME_SIZE_Y),
                 rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
             }
         }
@@ -137,8 +119,8 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     // console.log(spec.orientation)
 
     spec.momentum = {};
-    spec.momentum.x = spec.orientation.x * Random.nextRange(150, spec.maxSpeed * 200) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
-    spec.momentum.y = spec.orientation.y * Random.nextRange(150, spec.maxSpeed * 200) / spec.size.x;//larger asteroids will move slower
+    spec.momentum.x = spec.orientation.x * Random.nextRange(this.minAsteroidSpeed, spec.maxSpeed * this.maxAsteroidSpeedModifier) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
+    spec.momentum.y = spec.orientation.y * Random.nextRange(this.minAsteroidSpeed, spec.maxSpeed * this.maxAsteroidSpeedModifier) / spec.size.x;//larger asteroids will move slower
 
     let asteroid = new MyGame.objects.Asteroid(spec)
     console.log(asteroid);
@@ -150,10 +132,10 @@ MyGame.objects.GameModel.prototype.generateUFO = function () {
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
-    console.log('asters', this.asteroids);
+    // console.log('asters', this.asteroids);
 
-    console.log('obj1', obj1);
-    console.log('obj2', obj2);
+    // console.log('obj1', obj1);
+    // console.log('obj2', obj2);
 
     //check for collisions
     // for(let i = 0; i < obj1.length)
@@ -172,38 +154,28 @@ MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
 MyGame.objects.GameModel.prototype.breakAsteroid = function (center, newSize, pieces = 3) {
     //create new asteroids
     for (let i = 0; i < pieces; i++) {
-        console.log('hhhhhhhhh', i)
         this.generateAsteroid(newSize, { x: center.x, y: center.y });
     }
 }
 
 MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
-    //do stuff
-    console.log(asteroid.size.x);
     let x = asteroid.center.x;
     let y = asteroid.center.y;
     //tell asteroid it was collided with
     if (asteroid.size.x > ASTEROID_SIZES.SMALL) {
-        console.log('here')
-        //break appart
         //determine new size of sub asteroids
-        let size = ASTEROID_SIZES.LARGE;
+        let newSize = ASTEROID_SIZES.SMALL;//assuming size is medium (this line) or large (below)
+        let newPieces = 4;
         if (asteroid.size.x == ASTEROID_SIZES.LARGE) {
-            console.log('here2')
-            size = ASTEROID_SIZES.MEDIUM;
-        } else if (asteroid.size.x == ASTEROID_SIZES.MEDIUM) {
-            console.log('here3')
-            size = ASTEROID_SIZES.SMALL;
+            newSize = ASTEROID_SIZES.MEDIUM;
+            newPieces = 3;
         }
         //TODO: display particle effects for breaking asteroid
-        //move asteroid off screen so it gets destroyed on next update
-        asteroid.set_center({ x: EDGE_BUFFER_MAX + 1, y: EDGE_BUFFER_MAX + 1 })
-        //create sub asteroids
-        this.breakAsteroid({ x: x, y: y }, size, 3);//break apart takes an arg of how many pieces to break into
+        asteroid.remove();//expire asteroid so it gets destroyed on next update
+        this.breakAsteroid({ x: x, y: y }, newSize, newPieces); //create sub asteroids
     } else {
         //TODO: display particle effects for destroying asteroid
-        //move asteroid off screen so it gets destroyed on next update
-        asteroid.set_center({ x: EDGE_BUFFER_MAX + 1, y: EDGE_BUFFER_MAX + 1 })
+        asteroid.remove();//expire asteroid so it gets destroyed on next update
     }
 
 }
@@ -230,12 +202,12 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
     this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
-    //clean up any out-of-bounds projectiles
+    //clean up any expired projectiles
     let projectiles_copy = this.projectiles;
     this.projectiles.forEach(function (projectile, index) {
         if (projectile != null) {
-            if (projectile.center.x > EDGE_BUFFER_MAX || projectile.center.x < EDGE_BUFFER_MIN || projectile.center.y > EDGE_BUFFER_MAX || projectile.center.y < EDGE_BUFFER_MIN) {
-                projectiles_copy[index] = null;//destroy out of bounds projectiles
+            if (projectile.expired == true) {
+                projectiles_copy[index] = null;//destroy out of bounds asteroids
             } else {
                 projectile.update(elapsedTime);
             }
@@ -243,20 +215,24 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     })
     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
-    if (this.currentAsteroidSpawnTimer > 0) {
-        this.currentAsteroidSpawnTimer -= elapsedTime;
-    } else {
-        // console.log('ASTEROID CREATED');
-        this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//even distribution
-        // this.generateAsteroid(this.choose([ASTEROID_SIZES.SMALL, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.MEDIUM, ASTEROID_SIZES.LARGE]));//more mediums
-        this.currentAsteroidSpawnTimer = Random.nextRange(this.asteroidSpawnTimeRange.min, this.asteroidSpawnTimeRange.max);
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    if(this.asteroids.length == 0){//if level cleared
+        console.log('next level')
+        this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
+        for(let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn){
+            this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
+        }
     }
 
-    //clean up any out-of-bounds asteroids
+    //clean up any expired asteroids
     let asteroids_copy = this.asteroids;
     this.asteroids.forEach(function (asteroid, index) {
         if (asteroid != null) {
-            if (asteroid.center.x > EDGE_BUFFER_MAX || asteroid.center.x < EDGE_BUFFER_MIN || asteroid.center.y > EDGE_BUFFER_MAX || asteroid.center.y < EDGE_BUFFER_MIN) {
+            if (asteroid.expired == true) {
                 asteroids_copy[index] = null;//destroy out of bounds asteroids
             } else {
                 asteroid.update(elapsedTime);
@@ -273,13 +249,11 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     }
 
     for (let ast in this.asteroids) {
-        if(this.collides(this.player,this.asteroids[ast])){
-            console.log('####################################');
+        if (this.collides(this.player, this.asteroids[ast])) {
             console.log('####################################');
             console.log('MAN DOWN');
             console.log('####################################');
-            console.log('####################################');
-            this.gameOver = true;
+            this.losePlayerLife();
             return;
         }
     }
@@ -297,6 +271,18 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         }
     }
 }
+
+MyGame.objects.GameModel.prototype.losePlayerLife = function () {
+    if (this.remainingLives < 0) {
+        this.remainingLives = -1;//make sure it does not keep going negative until overflow
+        this.gameOver = true;
+    } else {
+        this.remainingLives -= 1;
+        // this.projectiles = [];//should I do this?
+        this.player.respawn(this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]));
+    }
+}
+
 
 MyGame.objects.GameModel.prototype.render = function () {
     this.projectiles.forEach(function (projectile) {//render projectiles
