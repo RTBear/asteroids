@@ -12,8 +12,8 @@ MyGame.objects.GameModel = function () {
         hyperspaceCooldown: 5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        fireRate: 0.3 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
-        // fireRate: 0.05 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
+        fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
         projectileSpeed: 10,
         projectileAccelerationRate: 1,
 
@@ -123,7 +123,7 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     spec.momentum.y = spec.orientation.y * Random.nextRange(this.minAsteroidSpeed, spec.maxSpeed * this.maxAsteroidSpeedModifier) / spec.size.x;//larger asteroids will move slower
 
     let asteroid = new MyGame.objects.Asteroid(spec)
-    console.log(asteroid);
+    // console.log(asteroid);
     this.asteroids.push(asteroid);
 }
 
@@ -197,6 +197,11 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
 ////////////////////////////////////////////////////////////                                                   
 
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
+
+
+    this.player.fire();
+
+
     // console.log(this.asteroids)
     this.player.update(elapsedTime);
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
@@ -221,7 +226,8 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     /////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
     if(this.asteroids.length == 0){//if level cleared
-        console.log('next level')
+        console.log('level: '+this.level)
+        this.level++;
         this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
         for(let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn){
             this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
@@ -261,8 +267,8 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     for (let ast in this.asteroids) {
         for (let laser in this.projectiles) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
-                console.log('HIT');
-                console.log('lasers', this.projectiles)
+                // console.log('HIT');
+                // console.log('lasers', this.projectiles)
                 this.notifyAsteroid(this.asteroids[ast]);
                 this.projectiles[laser] = null;
                 this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds asteroids
