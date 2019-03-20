@@ -56,7 +56,6 @@ MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
     if (this.hyperspaceStatus > 0) {
         this.hyperspaceStatus -= elapsedTime;
     } else {
-        console.log('hyperspace ready');
         this.hyperspaceStatus = 0;
     }
 

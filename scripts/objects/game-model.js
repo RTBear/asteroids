@@ -8,8 +8,10 @@ MyGame.objects.GameModel = function () {
 
     this.entities = [];//array of SpaceStates //TODO
     this.player = new MyGame.objects.PlayerShip({
-        hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
-        hyperspaceCooldown: 5 * 1000,
+        // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
+        hyperspaceStatus: 0, //float // how long until it can be used (ms)
+        // hyperspaceCooldown: 5 * 1000,
+        hyperspaceCooldown: .5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
         // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
@@ -25,18 +27,19 @@ MyGame.objects.GameModel = function () {
         maxSpeed: 3, //float //max magnitude of momentum
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
-    })
+    });
+    this.playerSpawnBuffer = ASTEROID_SIZES.LARGE + 300;
+    this.remainingLives = 200; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufo = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
     this.projectiles = []; //array of Projectile objects
 
-    this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
     this.score = 0; //int //current score
     this.level = 0; //int //current level
     this.gameOver = false; //is game over?
     this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
-   
+
     this.maxAsteroidSpeedModifier = 100;
     this.minAsteroidSpeed = 0.01;
 
@@ -183,12 +186,108 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
     //tell projectile it was collided with
 }
 
-MyGame.objects.GameModel.prototype.incrementScore = function (howMuch){
+MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
     this.score += howMuch;
 }
 
-MyGame.objects.GameModel.prototype.computeSafeLocation = function(){
-    return this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]);
+MyGame.objects.GameModel.prototype.losePlayerLife = function () {
+    console.log('####################################');
+    console.log('MAN DOWN');
+    console.log('####################################');
+    if (this.remainingLives <= 0) {
+        this.remainingLives = 0;//make sure it does not keep going negative until overflow
+        this.gameOver = true;
+    } else {
+        this.remainingLives -= 1;
+        // this.projectiles = [];//should I do this?
+    console.log('=============================================')
+
+        this.player.respawn(this.computeSafeLocation());
+    }
+}
+
+MyGame.objects.GameModel.prototype.computeDistance = function(x1,y1,x2,y2){
+    let dx = x2 - x1; //delta x
+    let dy = y2 - y1; //delta y
+
+    if(dx > 0){//x2 > x1
+        var dx_wrap = x2 - (x1 + GAME_SIZE_X); //delta x
+    }else{
+        var dx_wrap = (x2 + GAME_SIZE_X) - x1; //delta x
+    }
+
+    if(dy > 0){
+        var dx_wrap = y2 - (y1 + GAME_SIZE_Y); //delta y
+    }else{
+        var dy_wrap = (y2 + GAME_SIZE_Y) - y1; //delta y
+    }
+
+    if(dx_wrap < dx){
+        dx = dx_wrap;
+    }
+    if(dy_wrap < dy){
+        dy = dy_wrap;
+    }
+
+    // if(dx > 0){//x2 > x1
+    //     //check if closer via wrap-around
+    //     let possible_dx = (x1 + GAME_SIZE_X) - x2;
+    //     if (possible_dx < dx){
+    //         possible_dx = dx;//if closer via wrap-around use closer value
+    //         dy = y1 - y2;
+    //     }
+    //     return Math.sqrt(dx*dx + dy*dy);
+    // }else if(dy > 0){//y2 > y1
+    //     //check if closer via wrap-around
+    //     let possible_dy = (y1 + GAME_SIZE_Y) - y2;
+    //     dy = (possible_dy < dy) ? possible_dy : dy;//if closer via wrap-around use closer value
+    //     return Math.sqrt(dx*dx + dy*dy);
+    // }
+    let dist = Math.sqrt(dx*dx + dy*dy);
+    console.log(this.playerSpawnBuffer,dist);
+    return dist;
+}
+
+MyGame.objects.GameModel.prototype.computeSafeLocation = function () {
+
+    // let possibleLocation = {
+    //     // x: Random.nextRange(0 + this.playerSpawnBuffer, GAME_SIZE_X - this.playerSpawnBuffer),
+    //     // y: Random.nextRange(0 + this.playerSpawnBuffer, GAME_SIZE_Y - this.playerSpawnBuffer)
+    //     x: Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x),
+    //     y: Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y)
+    //     // x: Random.nextRange(0, GAME_SIZE_X),
+    //     // y: Random.nextRange(0, GAME_SIZE_Y)
+    // };
+
+    let possibleLocation_x = Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x);
+    let possibleLocation_y = Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y);
+
+    // MyGame.graphics.drawCircle({
+    //     center: {
+    //         x: possibleLocation_x,
+    //         y: possibleLocation_y
+    //     },
+    //     radius: this.playerSpawnBuffer
+    // })
+
+    console.log('pl',possibleLocation_x,possibleLocation_y);
+    let safeLocation = true;
+    for (let ast in this.asteroids) {
+        if (this.computeDistance(this.asteroids[ast].center.x, possibleLocation_x, this.asteroids[ast].center.y, possibleLocation_y) < this.playerSpawnBuffer) {
+            safeLocation = false;
+        }
+    }
+
+    if (safeLocation){
+        return {
+            x: possibleLocation_x,
+            y: possibleLocation_y
+        }
+    }else{
+        return this.computeSafeLocation();//try again
+    }
+
+    // return this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]);
 }
 
 ////////////////////////////////////////////////////////////
@@ -213,8 +312,10 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
     this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
-    if (this.player.requestNewLocation == true){
+    if (this.player.requestNewLocation == true) {
         this.player.requestNewLocation = false;
+        console.log('--------------------------------------------------')
+
         this.player.respawn(this.computeSafeLocation());
     }
 
@@ -231,16 +332,12 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     })
     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////
-    if(this.asteroids.length == 0){//if level cleared
-        console.log('level: '+this.level)
+    //check for increment level
+    if (this.asteroids.length == 0) {//if level cleared
+        console.log('level: ' + this.level)
         this.level++;
         this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
-        for(let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn){
+        for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
             this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
         }
     }
@@ -265,11 +362,9 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
     }
 
+    //CRUDE COLLISION CHECK FOR PLAYER AND ASTEROIDS
     for (let ast in this.asteroids) {
         if (this.collides(this.player, this.asteroids[ast])) {
-            console.log('####################################');
-            console.log('MAN DOWN');
-            console.log('####################################');
             this.losePlayerLife();
             return;
         }
@@ -290,17 +385,6 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     }
 }
 
-MyGame.objects.GameModel.prototype.losePlayerLife = function () {
-    if (this.remainingLives <= 0) {
-        this.remainingLives = 0;//make sure it does not keep going negative until overflow
-        this.gameOver = true;
-    } else {
-        this.remainingLives -= 1;
-        // this.projectiles = [];//should I do this?
-        this.player.respawn(this.computeSafeLocation());
-    }
-}
-
 MyGame.objects.GameModel.prototype.render = function () {
     this.projectiles.forEach(function (projectile) {//render projectiles
         if (projectile != null) {
@@ -313,9 +397,39 @@ MyGame.objects.GameModel.prototype.render = function () {
         if (asteroid != null) {
             // console.log(asteroid)
             asteroid.render();
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x,
+                    y: asteroid.center.y
+                },
+                radius: asteroid.size.x
+            })
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x,
+                    y: asteroid.center.y
+                },
+                radius: 5
+            })
         }
     })
     //TODO: render UFOs
+
+    MyGame.graphics.drawCircle({
+        center: {
+            x: this.player.center.x,
+            y: this.player.center.y
+        },
+        radius: this.playerSpawnBuffer
+    })
+
+    MyGame.graphics.drawCircle({
+        center: {
+            x: this.player.center.x,
+            y: this.player.center.y
+        },
+        radius: this.player.size.x
+    })
 
     this.player.renderer.render();//render player
 }
