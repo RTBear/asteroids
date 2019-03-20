@@ -35,6 +35,11 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         console.log("GAME OVER");
     }
 
+    function updateHUD(){
+        let scoreElem = document.getElementById('current-score');
+        scoreElem.innerHTML = '<p><strong>Score:</strong> ' + gameModel.score + '</p>';
+    }
+
     function update(elapsedTime) {
         particlesFire.update(elapsedTime);
         // particlesSmoke.update(elapsedTime);
@@ -50,6 +55,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         // smokeRenderer.render();
 
         gameModel.render();
+        updateHUD();
     }
 
     function processInput(elapsedTime) {

@@ -49,6 +49,7 @@ MyGame.objects.GameModel.prototype.choose = function (list) {
     index = Random.nextRange(0, list.length);
     return list[index];
 }
+
 MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = null) {
     spec = {
         rotationRate: Random.nextRange(1, 15) / 100,
@@ -108,22 +109,18 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     spec.center.x = spawnPoint.x;
     spec.center.y = spawnPoint.y;
 
-    // spec.rotation = Random.nextRange(0, 361) * Math.PI / 180;//orientation angle
     spec.rotation = spawnPoint.rotation;//orientation angle
-    // console.log(spawnPoint.zone)
-    // console.log(spec.rotation * 180 / Math.PI)
+
     //also random
     spec.orientation = {};
     spec.orientation.x = Math.cos(spec.rotation);
     spec.orientation.y = Math.sin(spec.rotation);
-    // console.log(spec.orientation)
 
     spec.momentum = {};
     spec.momentum.x = spec.orientation.x * Random.nextRange(this.minAsteroidSpeed, spec.maxSpeed * this.maxAsteroidSpeedModifier) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
     spec.momentum.y = spec.orientation.y * Random.nextRange(this.minAsteroidSpeed, spec.maxSpeed * this.maxAsteroidSpeedModifier) / spec.size.x;//larger asteroids will move slower
 
     let asteroid = new MyGame.objects.Asteroid(spec)
-    // console.log(asteroid);
     this.asteroids.push(asteroid);
 }
 
@@ -185,6 +182,10 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
     //tell projectile it was collided with
 }
 
+MyGame.objects.GameModel.prototype.incrementScore = function (howMuch){
+    this.score += howMuch;
+}
+
 ////////////////////////////////////////////////////////////
 //  _______  _______  ______   _______ _________ _______  //
 // |\     /|(  ____ )(  __  \ (  ___  )\__   __/(  ____ \ //
@@ -199,7 +200,7 @@ MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
 
-    this.player.fire();
+    // this.player.fire();
 
 
     // console.log(this.asteroids)
@@ -269,6 +270,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
                 // console.log('HIT');
                 // console.log('lasers', this.projectiles)
+                this.incrementScore(Math.ceil(ASTEROID_SIZES.LARGE / this.asteroids[ast].size.x));
                 this.notifyAsteroid(this.asteroids[ast]);
                 this.projectiles[laser] = null;
                 this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds asteroids
@@ -289,7 +291,6 @@ MyGame.objects.GameModel.prototype.losePlayerLife = function () {
     }
 }
 
-
 MyGame.objects.GameModel.prototype.render = function () {
     this.projectiles.forEach(function (projectile) {//render projectiles
         if (projectile != null) {
@@ -297,7 +298,7 @@ MyGame.objects.GameModel.prototype.render = function () {
         }
     })
 
-    //TODO: render asteroids
+    //render asteroids
     this.asteroids.forEach(function (asteroid) {//render projectiles
         if (asteroid != null) {
             // console.log(asteroid)
