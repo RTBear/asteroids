@@ -122,7 +122,7 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     }
 }
 
-MyGame.objects.SpaceObject.prototype.respawn = function () {
+MyGame.objects.SpaceObject.prototype.respawn = function (location) {
     this.center.x = location.x;
     this.center.y = location.y;
     this.hyperspaceStatus = this.hyperspaceCooldown; //reset hyperspace cooldown
