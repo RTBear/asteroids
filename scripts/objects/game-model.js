@@ -187,6 +187,10 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch){
     this.score += howMuch;
 }
 
+MyGame.objects.GameModel.prototype.computeSafeLocation = function(){
+    return this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]);
+}
+
 ////////////////////////////////////////////////////////////
 //  _______  _______  ______   _______ _________ _______  //
 // |\     /|(  ____ )(  __  \ (  ___  )\__   __/(  ____ \ //
@@ -208,6 +212,11 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     this.player.update(elapsedTime);
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
     this.player.projectiles = [];//memory leak? do i need to null out the array first?
+
+    if (this.player.requestNewLocation == true){
+        this.player.requestNewLocation = false;
+        this.player.respawn(this.computeSafeLocation());
+    }
 
     //clean up any expired projectiles
     let projectiles_copy = this.projectiles;
@@ -288,7 +297,7 @@ MyGame.objects.GameModel.prototype.losePlayerLife = function () {
     } else {
         this.remainingLives -= 1;
         // this.projectiles = [];//should I do this?
-        this.player.respawn(this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]));
+        this.player.respawn(this.computeSafeLocation());
     }
 }
 

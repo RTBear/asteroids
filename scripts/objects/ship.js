@@ -116,6 +116,7 @@ MyGame.objects.Ship.prototype.fire = function (elapsedTime) {
 }
 
 MyGame.objects.Ship.prototype.update = function (elapsedTime) {
+
     MyGame.objects.SpaceObject.prototype.update.call(this, elapsedTime);
     if (this.fireCountdown > 0) {
         this.fireCountdown -= elapsedTime;

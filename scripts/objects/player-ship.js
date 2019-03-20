@@ -52,6 +52,7 @@ MyGame.objects.SpaceObject.prototype.set_hyperspaceStatus = function (hs) { this
 
 MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
     MyGame.objects.Ship.prototype.update.call(this, elapsedTime);
+
     if (this.hyperspaceStatus > 0) {
         this.hyperspaceStatus -= elapsedTime;
     } else {
@@ -59,7 +60,9 @@ MyGame.objects.PlayerShip.prototype.update = function (elapsedTime) {
         this.hyperspaceStatus = 0;
     }
 
+
 }
+
 MyGame.objects.PlayerShip.prototype.nextGunToFire = function () {
     if (this.lastGunFired == 0) {
         this.lastGunFired = 3;
@@ -122,13 +125,13 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     }
 }
 
-MyGame.objects.SpaceObject.prototype.respawn = function (location) {
+MyGame.objects.PlayerShip.prototype.respawn = function (location) {
     this.center.x = location.x;
     this.center.y = location.y;
     this.hyperspaceStatus = this.hyperspaceCooldown; //reset hyperspace cooldown
     this.fireCountdown = this.fireRate; //reset weapon cooldown
     //reset weapon
-    // this.projectiles = [];//array containing lasers
+    this.projectiles = [];//array containing lasers
     this.lastGunFired = 3;
 }
 
