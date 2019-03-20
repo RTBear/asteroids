@@ -40,6 +40,8 @@ MyGame.objects.PlayerShip = function (spec) {
     this.projectiles = [];//array containing lasers
     this.lastGunFired = 3;
 
+    this.requestNewLocation = false;
+
     // this.fireSound = new Audio();
 }
 
@@ -120,13 +122,13 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     }
 }
 
-MyGame.objects.SpaceObject.prototype.respawn = function (location) {
+MyGame.objects.SpaceObject.prototype.respawn = function () {
     this.center.x = location.x;
     this.center.y = location.y;
     this.hyperspaceStatus = this.hyperspaceCooldown; //reset hyperspace cooldown
     this.fireCountdown = this.fireRate; //reset weapon cooldown
     //reset weapon
-    this.projectiles = [];//array containing lasers
+    // this.projectiles = [];//array containing lasers
     this.lastGunFired = 3;
 }
 
@@ -134,5 +136,6 @@ MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
     if (this.hyperspaceStatus == 0) {
         console.log('PlayerShip Hyperspace!!!');
         this.hyperspaceStatus = this.hyperspaceCooldown; //reset cooldown
+        this.requestNewLocation = true;
     }
 }

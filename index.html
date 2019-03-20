@@ -11,9 +11,23 @@
 <body>
     <h1 id="game-title">Asteroids</h1>
     <canvas id="game-canvas" width="600" height="600"></canvas>
-    <div id="current-score">
-        <p><strong>Score:</strong> 0</p>
-        <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
+    <div id="hud">
+        <div id="current-score">
+            <p><strong>Score:</strong> 0</p>
+            <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
+        </div>
+        <div id="high-score">
+            <p><strong>High Score:</strong> 999999</p>
+        </div>
+        <div id="lives-remaining">
+
+        </div>
+        <div id="current-level">
+
+        </div>
+        <div id="hyperspace-cooldown">
+
+        </div>
     </div>
     <script>
         const GAME_SIZE_X = 600;

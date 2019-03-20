@@ -33,7 +33,7 @@ MyGame.objects.GameModel = function () {
 
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
     this.score = 0; //int //current score
-    this.level = 1; //int //current level
+    this.level = 0; //int //current level
     this.gameOver = false; //is game over?
     this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
    
@@ -60,7 +60,8 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     }
     //these will vary by asteroid size
     //TODO: do something like I did with "sides" and have each image associated with a color (so I can have the particle effects be the same color)
-    asteroidImageOptions = ['./assets/asteroids/ball_gray.svg', './assets/asteroids/ball_red.svg', './assets/asteroids/ball_yellow.svg'];
+    // asteroidImageOptions = ['./assets/asteroids/ball_gray.svg', './assets/asteroids/ball_red.svg', './assets/asteroids/ball_yellow.svg'];
+    asteroidImageOptions = ['./assets/asteroids/ball_gray.svg']; //for now... I only like the gray one
     spec.imageSrc = this.choose(asteroidImageOptions);
     spec.size = {};
     spec.size.x = size;
@@ -75,7 +76,7 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     } else {
 
         //starting location will be random unless specified
-        let sides = {
+        let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
             top: {
                 zone: 'top',
                 x: Random.nextRange(0, GAME_SIZE_X),
@@ -281,8 +282,8 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 }
 
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
-    if (this.remainingLives < 0) {
-        this.remainingLives = -1;//make sure it does not keep going negative until overflow
+    if (this.remainingLives <= 0) {
+        this.remainingLives = 0;//make sure it does not keep going negative until overflow
         this.gameOver = true;
     } else {
         this.remainingLives -= 1;

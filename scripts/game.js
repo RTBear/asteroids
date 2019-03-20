@@ -36,8 +36,23 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     }
 
     function updateHUD(){
+        //update score
         let scoreElem = document.getElementById('current-score');
         scoreElem.innerHTML = '<p><strong>Score:</strong> ' + gameModel.score + '</p>';
+        //update level
+        let currLvlElem = document.getElementById('current-level');
+        currLvlElem.innerHTML = '<p><strong>Level:</strong> ' + gameModel.level + '</p>';
+        //update lives remaining
+        let livesElem = document.getElementById('lives-remaining');
+        livesElem.innerHTML = '<p><strong>Lives Remaining:</strong> ' + gameModel.remainingLives + '</p>';
+        //update hyperspace cooldown
+        let hyperspaceElem = document.getElementById('hyperspace-cooldown');
+        if(gameModel.player.hyperspaceStatus <= 0){
+            hyperspaceElem.innerHTML = '<p><strong>Hyperspace Ready</strong></p>';
+            
+        }else{
+            hyperspaceElem.innerHTML = '<p><strong>Hyperspace In:</strong> ' + Math.trunc(gameModel.player.hyperspaceStatus / 1000 + 1) + '</p>';//+1 is so that it doesn't say 3...2...1....0...Ready
+        }
     }
 
     function update(elapsedTime) {
