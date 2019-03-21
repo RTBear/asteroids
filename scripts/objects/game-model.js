@@ -8,10 +8,10 @@ MyGame.objects.GameModel = function () {
 
     this.entities = [];//array of SpaceStates //TODO
     this.player = new MyGame.objects.PlayerShip({
-        // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
+        hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
         // hyperspaceStatus: 0, //float // how long until it can be used (ms)
         hyperspaceCooldown: 5 * 1000,
-        hyperspaceCooldown: .05 * 1000,
+        // hyperspaceCooldown: .05 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
         // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION

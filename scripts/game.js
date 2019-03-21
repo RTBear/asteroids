@@ -47,49 +47,52 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         livesElem.innerHTML = '<p><strong>Lives Remaining:</strong> ' + gameModel.remainingLives + '</p>';
         //update hyperspace cooldown
         document.getElementById('hyperspace-cooldown').innerHTML = '';
-        // let hsPercent = (gameModel.player.hyperspaceStatus / gameModel.player.hyperspaceCooldown) / 100; //percent until ready
-        let hsPercent = .5; //percent until ready
+        let hsPercent = 1 - (gameModel.player.hyperspaceStatus / gameModel.player.hyperspaceCooldown); //percent until ready
 
-        console.log(hsPercent);
-        var hsBar = new ProgressBar.Circle('#hyperspace-cooldown', {
-            color: '#aaa',
-            // This has to be the same size as the maximum width to
-            // prevent clipping
-            strokeWidth: 4,
-            trailWidth: 1,
-            easing: 'linear',
-            duration: 0.0001,
-            text: {
-                autoStyleContainer: true
-            },
-            from: { color: '#f4f442', width: 4 },
-            to: { color: '#f4f442', width: 4 },
-            // Set default step function for all animate calls
-            step: function (state, circle) {
-                circle.path.setAttribute('stroke', state.color);
-                circle.path.setAttribute('stroke-width', state.width);
-
-                // var value = Math.round(circle.value() * 100);
-                // if (value === 0) {
-                //     circle.setText('');
-                // } else {
-                //     circle.setText(value);
-                // }
-
-            }
-        });
-        //   bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-        // hsBar.text.style.fontSize = '2em';
-
+        //draw hyperspace status bar
+        if (hsPercent < 1) {
+            var hsBar = new ProgressBar.Circle('#hyperspace-cooldown', {
+                color: '#aaa',
+                // This has to be the same size as the maximum width to
+                // prevent clipping
+                strokeWidth: 4,
+                trailWidth: 1,
+                easing: 'linear',
+                duration: 0.0001,
+                text: {
+                    autoStyleContainer: true
+                },
+                from: { color: '#f4f442', width: 4 },
+                to: { color: '#cece29', width: 4 },
+                // Set default step function for all animate calls
+                step: function (state, circle) {
+                    circle.path.setAttribute('stroke', state.color);
+                    circle.path.setAttribute('stroke-width', state.width);
+                }
+            });
+        } else {
+            var hsBar = new ProgressBar.Circle('#hyperspace-cooldown', {
+                color: '#aaa',
+                // This has to be the same size as the maximum width to
+                // prevent clipping
+                strokeWidth: 4,
+                trailWidth: 1,
+                easing: 'linear',
+                duration: 0.0001,
+                text: {
+                    autoStyleContainer: true
+                },
+                from: { color: '#ffff42', width: 4 },
+                to: { color: '#ffff42', width: 4 },
+                // Set default step function for all animate calls
+                step: function (state, circle) {
+                    circle.path.setAttribute('stroke', state.color);
+                    circle.path.setAttribute('stroke-width', state.width);
+                }
+            });
+        }
         hsBar.animate(hsPercent);  // Number from 0.0 to 1.0
 
-        // let hyperspaceElem = document.getElementById('hyperspace-cooldown');
-        // if (gameModel.player.hyperspaceStatus <= 0) {
-        //     hyperspaceElem.innerHTML = '<p><strong>Hyperspace Ready</strong></p>';
-
-        // } else {
-        //     hyperspaceElem.innerHTML = '<p><strong>Hyperspace In:</strong> ' + Math.trunc(gameModel.player.hyperspaceStatus / 1000 + 1) + '</p>';//+1 is so that it doesn't say 3...2...1....0...Ready
-        // }
     }
 
     function update(elapsedTime) {
