@@ -7,6 +7,8 @@
 //    rotationDirection: , //float // direction (>=0 is right; <0 is left;)
 //    projectileSpeed: , //float //max speed (momentum) of projectiles
 //    projectileAccelerationRate: , //float //acceleration rate of projectiles
+//    id: ,//id for ship
+//    shipType: , //type of ship ie 'ufo',
 //    //I think I have to include the spec stuff for things I inherit from (Ship)
 //////////////////// SHIP ///////////////////////////////////////////////////////
 //    turnRate: , //float //max rotations per time
@@ -38,6 +40,7 @@ MyGame.objects.UFO = function (spec) {
 
     this.projectiles = [];//array containing lasers
     this.id = spec.id;
+    this.shipType = spec.shipType;
     // this.fireSound = new Audio();
 }
 

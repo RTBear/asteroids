@@ -7,6 +7,8 @@
 //    hyperspaceCooldown: , //float // how long between uses
 //    projectileSpeed: , //float //max speed (momentum) of projectiles
 //    projectileAccelerationRate: , //float //acceleration rate of projectiles
+//    id: ,//id for ship
+//    shipType: , //type of ship ie 'player',
 //    //I think I have to include the spec stuff for things I inherit from (Ship)
 //////////////////// SHIP ///////////////////////////////////////////////////////
 //    accelerationRate: , //float //speed per time
@@ -42,6 +44,7 @@ MyGame.objects.PlayerShip = function (spec) {
 
     this.requestNewLocation = false;
     this.id = spec.id;
+    this.shipType = spec.shipType;
 
     // this.fireSound = new Audio();
 }

@@ -27,7 +27,8 @@ MyGame.objects.GameModel = function () {
         maxSpeed: 3, //float //max magnitude of momentum
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
-        id: this.nextID++
+        id: this.nextID++,
+        shipType: 'player'
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
@@ -161,7 +162,8 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
 
         maxSpeed: Random.nextRange(10, 20) / 10, //float //max magnitude of momentum 10,25 would be 1 to 2.5
         graphics: MyGame.graphics,
-        id: this.nextID++
+        id: this.nextID++,
+        shipType: 'ufo',
     }
     asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
     spec.imageSrc = this.choose(asteroidImageOptions);
@@ -285,8 +287,9 @@ MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
 }
 
 MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
-    //do stuff
     //tell projectile it was collided with
+    //TODO: particle effects here
+    projectile.remove();
 }
 
 MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
@@ -544,6 +547,24 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
                     this.projectiles[laser] = null;
                     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     break;
+                }
+            }
+        }
+    }
+    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND PROJECTILES
+    outerProjectilesLooop:
+    for (let laser1 in this.projectiles) {
+        for (let laser in this.projectiles) {
+            if(this.projectiles[laser].owner.shipType != this.projectiles[laser1].owner.shipType){
+                if (this.collides(this.projectiles[laser], this.projectiles[laser1])) {
+                    this.incrementScore(this.UFO_PROJECTILE_KILL_SCORE);
+                    if(this.projectiles[laser1].owner.type == 'player'){
+                        this.notifyProjectile(this.projectiles[laser]);
+                    }
+                    
+                    this.projectiles[laser1] = null;
+                    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
+                    break outerProjectilesLooop;
                 }
             }
         }
