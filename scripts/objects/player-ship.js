@@ -41,6 +41,7 @@ MyGame.objects.PlayerShip = function (spec) {
     this.lastGunFired = 3;
 
     this.requestNewLocation = false;
+    this.id = spec.id;
 
     // this.fireSound = new Audio();
 }

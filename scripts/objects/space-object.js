@@ -129,13 +129,13 @@ MyGame.objects.SpaceObject.prototype.update_collider = function() {
     }
 
 
-    if(this.size.x > this.size.y){
-        //if wider than tall
-        this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x));
-    }else{
-        //if taller than wide
-        this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y));
-    }
+    // if(this.size.x > this.size.y){
+    //     //if wider than tall
+    //     this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x));
+    // }else{
+    //     //if taller than wide
+    //     this.collider.push(new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y));
+    // }
 }
 
 MyGame.objects.SpaceObject.prototype.update = function (elapsedTime) {

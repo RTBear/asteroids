@@ -5,7 +5,7 @@
 // --------------------------------------------------------------
 MyGame.objects.GameModel = function () {
     'use strict';
-
+    this.nextID = 0;
     this.entities = [];//array of SpaceStates //TODO
     this.player = new MyGame.objects.PlayerShip({
         hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
@@ -27,6 +27,7 @@ MyGame.objects.GameModel = function () {
         maxSpeed: 3, //float //max magnitude of momentum
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
+        id: this.nextID++
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
@@ -154,17 +155,15 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         rotationRate: Random.nextRange(1, 15) / 100,
         rotationDirection: Random.nextRange(-1, 2),
 
-        fireRate: 1 * 1000, //float //max shots per time ///////// JUST FOR FUN
-        projectileSpeed: 10,
-        projectileAccelerationRate: 0.1,
+        fireRate: 3 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        projectileSpeed: 3,
+        projectileAccelerationRate: 0.005,
 
         maxSpeed: Random.nextRange(10, 20) / 10, //float //max magnitude of momentum 10,25 would be 1 to 2.5
         graphics: MyGame.graphics,
+        id: this.nextID++
     }
-    //these will vary by asteroid size
-    //TODO: do something like I did with "sides" and have each image associated with a color (so I can have the particle effects be the same color)
-    // asteroidImageOptions = ['./assets/asteroids/ball_gray.svg', './assets/asteroids/ball_red.svg', './assets/asteroids/ball_yellow.svg'];
-    asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... I only like the gray one
+    asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
     spec.imageSrc = this.choose(asteroidImageOptions);
 
     spec.size = {
@@ -501,6 +500,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
             }
         }
     })
+    Array.prototype.push.apply(this.projectiles, allUFOprojectiles);
     this.ufos = this.ufos.filter(el => el != null);//clean up null entries caused by destroying ufos
 
     //CRUDE COLLISION CHECK FOR PLAYER AND UFOS
@@ -534,15 +534,17 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND UFOS
     for (let ufo in this.ufos) {
         for (let laser in this.projectiles) {
-            if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
-                // console.log('HIT');
-                // console.log('lasers', this.projectiles)
-                this.incrementScore(this.UFO_KILL_SCORE);
-                this.notifyUFO(this.ufos[ufo]);
-
-                this.projectiles[laser] = null;
-                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
-                break;
+            if(this.projectiles[laser].owner.id != this.ufos[ufo].id){
+                if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
+                    // console.log('HIT');
+                    // console.log('lasers', this.projectiles)
+                    this.incrementScore(this.UFO_KILL_SCORE);
+                    this.notifyUFO(this.ufos[ufo]);
+                    
+                    this.projectiles[laser] = null;
+                    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
+                    break;
+                }
             }
         }
     }

@@ -37,7 +37,7 @@ MyGame.objects.UFO = function (spec) {
     this.projectileAccelerationRate = spec.projectileAccelerationRate;
 
     this.projectiles = [];//array containing lasers
-
+    this.id = spec.id;
     // this.fireSound = new Audio();
 }
 
@@ -98,7 +98,7 @@ MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
             momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
             graphics: this.graphics//reference to graphics renderer (MyGame.graphics)
         });
-
+        console.log(laser)
         this.projectiles.push(laser);
 
     }
