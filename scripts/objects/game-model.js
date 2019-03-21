@@ -31,7 +31,7 @@ MyGame.objects.GameModel = function () {
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
-    this.ufo = []; //array of Ufo objects
+    this.ufos = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
     this.projectiles = []; //array of Projectile objects
 
@@ -43,7 +43,14 @@ MyGame.objects.GameModel = function () {
     this.maxAsteroidSpeedModifier = 100;
     this.minAsteroidSpeed = 0.01;
 
-    this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
+    this.maxUFOSpeedModifier = 10;
+    this.minUFOSpeed = 0.01;
+    this.UFO_KILL_SCORE = 15;
+
+    // this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
+    // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
+
+    this.ufoSpawnTimeRange = { min: 1 * 1000, max: 2 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
     let spawnPointDensity = 20;
@@ -57,7 +64,6 @@ MyGame.objects.GameModel = function () {
             })
         }
     }
-    // console.log('SPAWN POINTS', this.spawnPoints);
 
     this.maxRecDep = 20;//maximum recursive depth for functions which use this
     this.computeSafeLocationCounter = this.maxRecDep;
@@ -143,8 +149,86 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     this.asteroids.push(asteroid);
 }
 
-MyGame.objects.GameModel.prototype.generateUFO = function () {
+MyGame.objects.GameModel.prototype.generateUFO = function (center) {
+    spec = {
+        rotationRate: Random.nextRange(1, 15) / 100,
+        rotationDirection: Random.nextRange(-1, 2),
 
+        fireRate: 1 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        projectileSpeed: 10,
+        projectileAccelerationRate: 0.1,
+
+        maxSpeed: Random.nextRange(10, 20) / 10, //float //max magnitude of momentum 10,25 would be 1 to 2.5
+        graphics: MyGame.graphics,
+    }
+    //these will vary by asteroid size
+    //TODO: do something like I did with "sides" and have each image associated with a color (so I can have the particle effects be the same color)
+    // asteroidImageOptions = ['./assets/asteroids/ball_gray.svg', './assets/asteroids/ball_red.svg', './assets/asteroids/ball_yellow.svg'];
+    asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... I only like the gray one
+    spec.imageSrc = this.choose(asteroidImageOptions);
+
+    spec.size = {
+        x: 50,
+        y: 50
+    };
+
+    if (center != null) {
+        var spawnPoint = {
+            x: center.x,
+            y: center.y,
+            rotation: Random.nextRange(0, 360) * Math.PI / 180,
+        };
+    } else {
+
+        //starting location will be random unless specified
+        let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
+            top: {
+                zone: 'top',
+                x: Random.nextRange(0, GAME_SIZE_X),
+                y: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer, GAME_SIZE_Y),
+                rotation: Random.nextRange(225, 315) * Math.PI / 180,
+            },
+            right: {
+                zone: 'right',
+                x: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_X),
+                y: Random.nextRange(0, GAME_SIZE_Y),
+                rotation: Random.nextRange(135, 225) * Math.PI / 180,
+            },
+            bottom: {
+                zone: 'bottom',
+                x: Random.nextRange(0, GAME_SIZE_X),
+                y: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_Y),
+                rotation: Random.nextRange(45, 135) * Math.PI / 180,
+            },
+            left: {
+                zone: 'left',
+                x: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer),
+                y: Random.nextRange(0, GAME_SIZE_Y),
+                rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
+            }
+        }
+
+        var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
+    }
+
+    spec.center = {};
+    spec.center.x = spawnPoint.x;
+    spec.center.y = spawnPoint.y;
+
+    spec.rotation = spawnPoint.rotation;//orientation angle
+
+    //also random
+    spec.orientation = {};
+    spec.orientation.x = Math.cos(spec.rotation);
+    spec.orientation.y = Math.sin(spec.rotation);
+
+    spec.momentum = {};
+    spec.momentum.x = spec.orientation.x * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
+    spec.momentum.y = spec.orientation.y * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//larger asteroids will move slower
+
+    let ufo = new MyGame.objects.UFO(spec)
+    console.log(ufo);
+    this.ufos.push(ufo);
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
@@ -194,6 +278,11 @@ MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
         asteroid.remove();//expire asteroid so it gets destroyed on next update
     }
 
+}
+
+MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
+        //TODO: display particle effects for destroyed ufo
+        ufo.remove();//expire asteroid so it gets destroyed on next update
 }
 
 MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
@@ -254,7 +343,7 @@ MyGame.objects.GameModel.prototype.computeDistance = function (x1, y1, x2, y2) {
     return dist;
 }
 
-MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {
+MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {//TODO: factor in ufo and ufo projectiles
     let safestPoint = this.spawnPoints[0];
     let maxDistance = 0;
     for (sp of this.spawnPoints) {
@@ -285,7 +374,7 @@ MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {
     return safestPoint;
 }
 
-MyGame.objects.GameModel.prototype.computeSafeLocation = function () {
+MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: factor in ufo and ufo projectiles
 
     let possibleLocation_x = Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x);
     let possibleLocation_y = Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y);
@@ -343,6 +432,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
     // console.log(this.asteroids)
     this.player.update(elapsedTime);
+    //add player projectiles to game
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
     this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
@@ -368,11 +458,10 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
     //check for increment level
     if (this.asteroids.length == 0) {//if level cleared
-        console.log('level: ' + this.level)
         this.level++;
         this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
         for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
-            this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
+            // this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
         }
     }
 
@@ -381,21 +470,46 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     this.asteroids.forEach(function (asteroid, index) {
         if (asteroid != null) {
             if (asteroid.expired == true) {
-                asteroids_copy[index] = null;//destroy out of bounds asteroids
+                asteroids_copy[index] = null;//destroy expired asteroids
             } else {
                 asteroid.update(elapsedTime);
             }
         }
     })
-    this.asteroids = this.asteroids.filter(el => el != null);//clean up null entries caused by destroying out of bounds asteroids
+    this.asteroids = this.asteroids.filter(el => el != null);//clean up null entries caused by destroying asteroids
 
     if (this.currentUfoSpawnTimer > 0) {
         this.currentUfoSpawnTimer -= elapsedTime;
     } else {
         console.log('UFO CREATED');
+        this.generateUFO();
         this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
     }
 
+    //clean up any expired asteroids
+    let ufos_copy = this.ufos;
+    let allUFOprojectiles = [];
+    this.ufos.forEach(function (ufo, index) {
+        if (ufo != null) {
+            if (ufo.expired == true) {
+                ufos_copy[index] = null;//destroy expired ufos
+            } else {
+                ufo.update(elapsedTime);
+                //add ufo projectiles to game
+                Array.prototype.push.apply(allUFOprojectiles, ufo.projectiles);
+                ufo.projectiles = [];//memory leak? do i need to null out the array first?
+            }
+        }
+    })
+    this.ufos = this.ufos.filter(el => el != null);//clean up null entries caused by destroying ufos
+
+    //CRUDE COLLISION CHECK FOR PLAYER AND UFOS
+    for (let ufo in this.ufos) {
+        if (this.collides(this.player, this.ufos[ufo])) {
+            this.losePlayerLife();
+            return;
+        }
+    }
     //CRUDE COLLISION CHECK FOR PLAYER AND ASTEROIDS
     for (let ast in this.asteroids) {
         if (this.collides(this.player, this.asteroids[ast])) {
@@ -403,7 +517,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
             return;
         }
     }
-    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND ASTEROIDS FOR TESTING
+    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND ASTEROIDS
     for (let ast in this.asteroids) {
         for (let laser in this.projectiles) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
@@ -412,7 +526,22 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
                 this.incrementScore(Math.ceil(ASTEROID_SIZES.LARGE / this.asteroids[ast].size.x));
                 this.notifyAsteroid(this.asteroids[ast]);
                 this.projectiles[laser] = null;
-                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds asteroids
+                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired asteroids
+                break;
+            }
+        }
+    }
+    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND UFOS
+    for (let ufo in this.ufos) {
+        for (let laser in this.projectiles) {
+            if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
+                // console.log('HIT');
+                // console.log('lasers', this.projectiles)
+                this.incrementScore(this.UFO_KILL_SCORE);
+                this.notifyUFO(this.ufos[ufo]);
+
+                this.projectiles[laser] = null;
+                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                 break;
             }
         }
@@ -489,7 +618,60 @@ MyGame.objects.GameModel.prototype.render = function () {
             }
         }
     });
-    //TODO: render UFOs
+    //render UFOs
+    this.ufos.forEach(function (ufo) {//render projectiles
+        if (ufo != null) {
+            // console.log(asteroid)
+            ufo.render();
+            if (RENDER_COLLIDERS || RENDER_COLLIDERS_UFOS) {
+
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x,
+                        y: ufo.center.y
+                    },
+                    circum: ufo.size.x
+                });
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x,
+                        y: ufo.center.y
+                    },
+                    circum: 5
+                });
+
+                //render where the ufo will be on wrap-around //TODO: render actual ufo in these locations and calculate collisions there too
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x + GAME_SIZE_X,
+                        y: ufo.center.y
+                    },
+                    circum: ufo.size.x
+                });
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x - GAME_SIZE_X,
+                        y: ufo.center.y
+                    },
+                    circum: ufo.size.x
+                });
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x,
+                        y: ufo.center.y + GAME_SIZE_Y
+                    },
+                    circum: ufo.size.x
+                });
+                MyGame.graphics.drawCircle({
+                    center: {
+                        x: ufo.center.x,
+                        y: ufo.center.y - GAME_SIZE_Y
+                    },
+                    circum: ufo.size.x
+                });
+            }
+        }
+    });
 
     if (RENDER_COLLIDERS || RENDER_COLLIDERS_PLAYER) {
 
