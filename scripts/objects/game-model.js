@@ -14,8 +14,8 @@ MyGame.objects.GameModel = function () {
         // hyperspaceCooldown: .05 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
-        fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
+        // fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
         projectileSpeed: 10,
         projectileAccelerationRate: 1,
 
@@ -47,7 +47,8 @@ MyGame.objects.GameModel = function () {
 
     this.maxUFOSpeedModifier = 10;
     this.minUFOSpeed = 0.01;
-    this.UFO_KILL_SCORE = 15;
+    this.UFO_KILL_SCORE = 10;
+    this.UFO_PROJECTILE_KILL_SCORE = 3;
 
     // this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
@@ -560,10 +561,14 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
                     this.incrementScore(this.UFO_PROJECTILE_KILL_SCORE);
                     if(this.projectiles[laser1].owner.type == 'player'){
                         this.notifyProjectile(this.projectiles[laser]);
+                        this.projectiles[laser1] = null;
+                        this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
+                    }else{
+                        this.notifyProjectile(this.projectiles[laser]);
+                        this.projectiles[laser1] = null;
+                        this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     }
                     
-                    this.projectiles[laser1] = null;
-                    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     break outerProjectilesLooop;
                 }
             }
