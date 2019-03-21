@@ -36,8 +36,23 @@ body
     bottom: 0;
     right: 0;
     background-color: rgba(50,50,50,.5);
-    padding: 15px;
+    padding: 15px 15px 25px 15px;
     border-left: 2px solid rgba(200,200,200,.5);
     border-top: 2px solid rgba(200,200,200,.5);
     border-top-left-radius: 15px;
+}
+
+#hud #hyperspace-cooldown {
+    width: 25%;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+div#hyperspace-cooldown:before {
+    content: 'HS';
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    font-size: .7em;
 }

@@ -9,8 +9,8 @@ MyGame.objects.GameModel = function () {
     this.entities = [];//array of SpaceStates //TODO
     this.player = new MyGame.objects.PlayerShip({
         // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
-        hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        // hyperspaceCooldown: 5 * 1000,
+        // hyperspaceStatus: 0, //float // how long until it can be used (ms)
+        hyperspaceCooldown: 5 * 1000,
         hyperspaceCooldown: .05 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
@@ -29,7 +29,7 @@ MyGame.objects.GameModel = function () {
         graphics: MyGame.graphics,
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
-    this.remainingLives = 2000; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
+    this.remainingLives = 1; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufo = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
@@ -453,7 +453,7 @@ MyGame.objects.GameModel.prototype.render = function () {
                 circum: 5
             })
 
-
+            //render where the asteroid will be on wrap-around //TODO: render actual asteroid in these locations and calculate collisions there too
             MyGame.graphics.drawCircle({
                 center: {
                     x: asteroid.center.x + GAME_SIZE_X,
