@@ -11,7 +11,7 @@ MyGame.objects.GameModel = function () {
         // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
         hyperspaceStatus: 0, //float // how long until it can be used (ms)
         // hyperspaceCooldown: 5 * 1000,
-        hyperspaceCooldown: .5 * 1000,
+        hyperspaceCooldown: .05 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
         // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
@@ -28,8 +28,8 @@ MyGame.objects.GameModel = function () {
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
     });
-    this.playerSpawnBuffer = ASTEROID_SIZES.LARGE + 300;
-    this.remainingLives = 200; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
+    this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
+    this.remainingLives = 2000; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufo = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
@@ -46,6 +46,22 @@ MyGame.objects.GameModel = function () {
     this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
+    let spawnPointDensity = 10;
+    this.spawnPoints = [];
+
+    for (let x = GAME_SIZE_X / spawnPointDensity; x < GAME_SIZE_X; x += GAME_SIZE_X / spawnPointDensity) {
+        for (let y = GAME_SIZE_Y / spawnPointDensity; y < GAME_SIZE_Y; y += GAME_SIZE_Y / spawnPointDensity) {
+            this.spawnPoints.push({
+                x: x,
+                y: y,
+            })
+        }
+    }
+
+    console.log('SPAWN POINTS', this.spawnPoints);
+
+    this.maxRecDep = 100;//maximum recursive depth for functions which use this
+    this.computeSafeLocationCounter = this.maxRecDep;
 }
 MyGame.objects.GameModel.prototype.choose = function (list) {
     //choose a random item from a list
@@ -200,94 +216,90 @@ MyGame.objects.GameModel.prototype.losePlayerLife = function () {
     } else {
         this.remainingLives -= 1;
         // this.projectiles = [];//should I do this?
-    console.log('=============================================')
+        console.log('=============================================')
 
         this.player.respawn(this.computeSafeLocation());
     }
 }
 
-MyGame.objects.GameModel.prototype.computeDistance = function(x1,y1,x2,y2){
-    let dx = x2 - x1; //delta x
-    let dy = y2 - y1; //delta y
+MyGame.objects.GameModel.prototype.computeDistance = function (x1, y1, x2, y2) {
+    //keep x keep y
+    var d0 = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
-    if(dx > 0){//x2 > x1
-        var dx_wrap = x2 - (x1 + GAME_SIZE_X); //delta x
-    }else{
-        var dx_wrap = (x2 + GAME_SIZE_X) - x1; //delta x
+    //keep x wrap y
+    if (y2 > y1) {
+        var d1 = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - (y1 + GAME_SIZE_Y)) * (y2 - (y1 + GAME_SIZE_Y)));//y1 would wrap
+    } else {
+        var d1 = Math.sqrt((x2 - x1) * (x2 - x1) + ((y2 + GAME_SIZE_Y) - y1) * ((y2 + GAME_SIZE_Y) - y1));//y2 would wrap
     }
 
-    if(dy > 0){
-        var dx_wrap = y2 - (y1 + GAME_SIZE_Y); //delta y
-    }else{
-        var dy_wrap = (y2 + GAME_SIZE_Y) - y1; //delta y
+    //wrap x keep y
+    if (x2 > x1) {
+        var d2 = Math.sqrt((x2 - (x1 + GAME_SIZE_X)) * (x2 - (x1 + GAME_SIZE_X)) + (y2 - y1) * (y2 - y1));//x1 would wrap
+    } else {
+        var d2 = Math.sqrt(((x2 + GAME_SIZE_X) - x1) * ((x2 + GAME_SIZE_X) - x1) + (y2 - y1) * (y2 - y1));//y2 would wrap
     }
 
-    if(dx_wrap < dx){
-        dx = dx_wrap;
+    //wrap x wrap y
+    if (y2 > y1) {
+        var dy3 = (y2 - (y1 + GAME_SIZE_Y));
+    } else {
+        var dy3 = ((y2 + GAME_SIZE_Y) - y1);
     }
-    if(dy_wrap < dy){
-        dy = dy_wrap;
+    if (x2 > x1) {
+        var dx3 = (x2 - (x1 + GAME_SIZE_X));
+    } else {
+        var dx3 = ((x2 + GAME_SIZE_X) - x1);
     }
+    var d3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
 
-    // if(dx > 0){//x2 > x1
-    //     //check if closer via wrap-around
-    //     let possible_dx = (x1 + GAME_SIZE_X) - x2;
-    //     if (possible_dx < dx){
-    //         possible_dx = dx;//if closer via wrap-around use closer value
-    //         dy = y1 - y2;
-    //     }
-    //     return Math.sqrt(dx*dx + dy*dy);
-    // }else if(dy > 0){//y2 > y1
-    //     //check if closer via wrap-around
-    //     let possible_dy = (y1 + GAME_SIZE_Y) - y2;
-    //     dy = (possible_dy < dy) ? possible_dy : dy;//if closer via wrap-around use closer value
-    //     return Math.sqrt(dx*dx + dy*dy);
-    // }
-    let dist = Math.sqrt(dx*dx + dy*dy);
-    console.log(this.playerSpawnBuffer,dist);
+    let dist = Math.min(d0, d1, d2, d3);
+    // console.log(x1, y1, x2, y2)
+    // console.log(this.playerSpawnBuffer, d0, d1, d2, d3, ':::', dist);
     return dist;
+}
+
+MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {
+
 }
 
 MyGame.objects.GameModel.prototype.computeSafeLocation = function () {
 
-    // let possibleLocation = {
-    //     // x: Random.nextRange(0 + this.playerSpawnBuffer, GAME_SIZE_X - this.playerSpawnBuffer),
-    //     // y: Random.nextRange(0 + this.playerSpawnBuffer, GAME_SIZE_Y - this.playerSpawnBuffer)
-    //     x: Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x),
-    //     y: Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y)
-    //     // x: Random.nextRange(0, GAME_SIZE_X),
-    //     // y: Random.nextRange(0, GAME_SIZE_Y)
-    // };
-
     let possibleLocation_x = Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x);
     let possibleLocation_y = Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y);
 
-    // MyGame.graphics.drawCircle({
-    //     center: {
-    //         x: possibleLocation_x,
-    //         y: possibleLocation_y
-    //     },
-    //     radius: this.playerSpawnBuffer
-    // })
+    // console.log(possibleLocation_x, possibleLocation_y, '&&&&&&&&')
 
-    console.log('pl',possibleLocation_x,possibleLocation_y);
+    this.possibleLocation_x = possibleLocation_x;
+    this.possibleLocation_y = possibleLocation_y;
+
+    // this.render();
+
+    // console.log('pl', possibleLocation_x, possibleLocation_y, '^^^^^^^^^^^^^^^^^^^^^^^^^^^');
     let safeLocation = true;
     for (let ast in this.asteroids) {
-        if (this.computeDistance(this.asteroids[ast].center.x, possibleLocation_x, this.asteroids[ast].center.y, possibleLocation_y) < this.playerSpawnBuffer) {
+        if (this.computeDistance(this.asteroids[ast].center.x, this.asteroids[ast].center.y, possibleLocation_x, possibleLocation_y) < this.playerSpawnBuffer) {
+            console.log(this.asteroids[ast].center)
             safeLocation = false;
         }
     }
 
-    if (safeLocation){
+    if (safeLocation) {
+        this.computeSafeLocationCounter = this.maxRecDep;
         return {
             x: possibleLocation_x,
             y: possibleLocation_y
         }
-    }else{
-        return this.computeSafeLocation();//try again
+    } else {
+        this.computeSafeLocationCounter--;
+        if (this.computeSafeLocationCounter > 0) {
+            return this.computeSafeLocation();//try again
+        } else {
+            this.computeSafeLocationCounter = this.maxRecDep;//reset recursion depth counter
+            console.log('Could not find "safe" spawns... spawning in safest location');
+            return this.computeSafestSpawnPoint();//find point on predetermined grid that is the "safest" ie furthest from all other projectiles while not right next to another projectile
+        }
     }
-
-    // return this.choose([{ x: 100, y: 100 }, { x: 100, y: 500 }, { x: 500, y: 100 }, { x: 500, y: 500 }]);
 }
 
 ////////////////////////////////////////////////////////////
@@ -402,14 +414,44 @@ MyGame.objects.GameModel.prototype.render = function () {
                     x: asteroid.center.x,
                     y: asteroid.center.y
                 },
-                radius: asteroid.size.x
+                circum: asteroid.size.x
             })
             MyGame.graphics.drawCircle({
                 center: {
                     x: asteroid.center.x,
                     y: asteroid.center.y
                 },
-                radius: 5
+                circum: 5
+            })
+
+
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x + GAME_SIZE_X,
+                    y: asteroid.center.y
+                },
+                circum: asteroid.size.x
+            })
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x - GAME_SIZE_X,
+                    y: asteroid.center.y
+                },
+                circum: asteroid.size.x
+            })
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x,
+                    y: asteroid.center.y + GAME_SIZE_Y
+                },
+                circum: asteroid.size.x
+            })
+            MyGame.graphics.drawCircle({
+                center: {
+                    x: asteroid.center.x,
+                    y: asteroid.center.y - GAME_SIZE_Y
+                },
+                circum: asteroid.size.x
             })
         }
     })
@@ -420,7 +462,7 @@ MyGame.objects.GameModel.prototype.render = function () {
             x: this.player.center.x,
             y: this.player.center.y
         },
-        radius: this.playerSpawnBuffer
+        circum: this.playerSpawnBuffer * 2
     })
 
     MyGame.graphics.drawCircle({
@@ -428,8 +470,27 @@ MyGame.objects.GameModel.prototype.render = function () {
             x: this.player.center.x,
             y: this.player.center.y
         },
-        radius: this.player.size.x
+        circum: this.player.size.x
+    })
+
+    MyGame.graphics.drawCircle({
+        center: {
+            x: this.possibleLocation_x,
+            y: this.possibleLocation_y
+        },
+        circum: this.playerSpawnBuffer * 2
     })
 
     this.player.renderer.render();//render player
+
+    this.spawnPoints.forEach(function (sp) {//render projectiles
+        // console.log(asteroid)
+        MyGame.graphics.drawCircle({
+            center: {
+                x: sp.x,
+                y: sp.y
+            },
+            circum: 5
+        });
+    })
 }

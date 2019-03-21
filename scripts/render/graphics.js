@@ -64,7 +64,7 @@ MyGame.graphics = (function() {
     //
     // Draw a circle to the canvas with the following attributes:
     //      center: { x: , y: },
-    //      radius: ,//float
+    //      circum: ,//float
     //
     // --------------------------------------------------------------
     function drawCircle(circ, fillStyle, strokeStyle) {
@@ -78,7 +78,7 @@ MyGame.graphics = (function() {
         // context.strokeStyle = strokeStyle;
         // context.strokeRect(circ.center.x - circ.size.x / 2, circ.center.y - circ.size.y / 2, circ.size.x, circ.size.y);
         context.strokeStyle = "#f4f442";
-        drawEllipseByCenter(circ.center.x, circ.center.y, circ.radius, circ.radius);
+        drawEllipseByCenter(circ.center.x, circ.center.y, circ.circum, circ.circum);
         context.restore();
     }
 
