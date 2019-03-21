@@ -127,6 +127,8 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
 MyGame.objects.PlayerShip.prototype.respawn = function (location) {
     this.center.x = location.x;
     this.center.y = location.y;
+    this.momentum.x = 0;
+    this.momentum.y = 0;
     this.hyperspaceStatus = this.hyperspaceCooldown; //reset hyperspace cooldown
     this.fireCountdown = this.fireRate; //reset weapon cooldown
     //reset weapon
