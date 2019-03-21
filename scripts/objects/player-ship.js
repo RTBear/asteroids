@@ -138,7 +138,6 @@ MyGame.objects.PlayerShip.prototype.respawn = function (location) {
 
 MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
     if (this.hyperspaceStatus == 0) {
-        console.log('PlayerShip Hyperspace!!!');
         this.hyperspaceStatus = this.hyperspaceCooldown; //reset cooldown
         this.requestNewLocation = true;
     }

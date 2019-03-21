@@ -46,9 +46,9 @@ MyGame.objects.GameModel = function () {
     this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
-    let spawnPointDensity = 10;
+    let spawnPointDensity = 20;
     this.spawnPoints = [];
-
+    //calculate spawn points
     for (let x = GAME_SIZE_X / spawnPointDensity; x < GAME_SIZE_X; x += GAME_SIZE_X / spawnPointDensity) {
         for (let y = GAME_SIZE_Y / spawnPointDensity; y < GAME_SIZE_Y; y += GAME_SIZE_Y / spawnPointDensity) {
             this.spawnPoints.push({
@@ -57,10 +57,9 @@ MyGame.objects.GameModel = function () {
             })
         }
     }
-
     console.log('SPAWN POINTS', this.spawnPoints);
 
-    this.maxRecDep = 100;//maximum recursive depth for functions which use this
+    this.maxRecDep = 20;//maximum recursive depth for functions which use this
     this.computeSafeLocationCounter = this.maxRecDep;
 }
 MyGame.objects.GameModel.prototype.choose = function (list) {
@@ -207,16 +206,12 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
 }
 
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
-    console.log('####################################');
-    console.log('MAN DOWN');
-    console.log('####################################');
     if (this.remainingLives <= 0) {
         this.remainingLives = 0;//make sure it does not keep going negative until overflow
         this.gameOver = true;
     } else {
         this.remainingLives -= 1;
         // this.projectiles = [];//should I do this?
-        console.log('=============================================')
 
         this.player.respawn(this.computeSafeLocation());
     }
@@ -260,7 +255,34 @@ MyGame.objects.GameModel.prototype.computeDistance = function (x1, y1, x2, y2) {
 }
 
 MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {
-
+    let safestPoint = this.spawnPoints[0];
+    let maxDistance = 0;
+    for(sp of this.spawnPoints){
+        // console.log(sp);
+        let distForSP = 0;
+        let closestAst = GAME_SIZE_X*GAME_SIZE_X + GAME_SIZE_Y*GAME_SIZE_Y; //can't be farther than this
+        for(ast of this.asteroids){
+            let dist = this.computeDistance(sp.x,sp.y, ast.center.x,ast.center.y);
+            let collisionDist = (dist - (ast.size.x / 2));//distance from spawn point to center of asteroid - radius of asteroid
+            if (collisionDist < closestAst){
+                closestAst = collisionDist;//check if new distance is the closest seen
+            } 
+            if(closestAst < this.player.collider[0][0].circumference/2){//if it would immediately collide with outermost collider for player
+                break;//break out early
+            }
+            distForSP += collisionDist;
+        }
+        if(distForSP > maxDistance){
+            //found the new safest point
+            safestPoint = {
+                x:sp.x,
+                y:sp.y,
+            };
+            maxDistance = distForSP;
+        }
+    }
+    console.log(safestPoint);
+    return safestPoint;
 }
 
 MyGame.objects.GameModel.prototype.computeSafeLocation = function () {
@@ -279,7 +301,7 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {
     let safeLocation = true;
     for (let ast in this.asteroids) {
         if (this.computeDistance(this.asteroids[ast].center.x, this.asteroids[ast].center.y, possibleLocation_x, possibleLocation_y) < this.playerSpawnBuffer) {
-            console.log(this.asteroids[ast].center)
+            // console.log(this.asteroids[ast].center)
             safeLocation = false;
         }
     }
@@ -326,7 +348,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
     if (this.player.requestNewLocation == true) {
         this.player.requestNewLocation = false;
-        console.log('--------------------------------------------------')
+        // console.log('--------------------------------------------------')
 
         this.player.respawn(this.computeSafeLocation());
     }
@@ -402,6 +424,13 @@ MyGame.objects.GameModel.prototype.render = function () {
         if (projectile != null) {
             projectile.render();
         }
+        MyGame.graphics.drawCircle({
+            center: {
+                x: projectile.center.x,
+                y: projectile.center.y
+            },
+            circum: projectile.size.x
+        })
     })
 
     //render asteroids
@@ -457,7 +486,7 @@ MyGame.objects.GameModel.prototype.render = function () {
     })
     //TODO: render UFOs
 
-    MyGame.graphics.drawCircle({
+    MyGame.graphics.drawCircle({//render current player respawn buffer
         center: {
             x: this.player.center.x,
             y: this.player.center.y
@@ -465,7 +494,7 @@ MyGame.objects.GameModel.prototype.render = function () {
         circum: this.playerSpawnBuffer * 2
     })
 
-    MyGame.graphics.drawCircle({
+    MyGame.graphics.drawCircle({ //render player collider
         center: {
             x: this.player.center.x,
             y: this.player.center.y
@@ -473,7 +502,7 @@ MyGame.objects.GameModel.prototype.render = function () {
         circum: this.player.size.x
     })
 
-    MyGame.graphics.drawCircle({
+    MyGame.graphics.drawCircle({//render player respawn buffer from last attempt at random spawn point
         center: {
             x: this.possibleLocation_x,
             y: this.possibleLocation_y
@@ -483,7 +512,7 @@ MyGame.objects.GameModel.prototype.render = function () {
 
     this.player.renderer.render();//render player
 
-    this.spawnPoints.forEach(function (sp) {//render projectiles
+    this.spawnPoints.forEach(function (sp) {//render spawn points
         // console.log(asteroid)
         MyGame.graphics.drawCircle({
             center: {
