@@ -283,8 +283,8 @@ MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
 }
 
 MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
-        //TODO: display particle effects for destroyed ufo
-        ufo.remove();//expire asteroid so it gets destroyed on next update
+    //TODO: display particle effects for destroyed ufo
+    ufo.remove();//expire asteroid so it gets destroyed on next update
 }
 
 MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
@@ -429,11 +429,6 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: fa
 
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
-
-    // this.player.fire();
-
-
-    // console.log(this.asteroids)
     this.player.update(elapsedTime);
     //add player projectiles to game
     Array.prototype.push.apply(this.projectiles, this.player.projectiles);
@@ -484,7 +479,6 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     if (this.currentUfoSpawnTimer > 0) {
         this.currentUfoSpawnTimer -= elapsedTime;
     } else {
-        console.log('UFO CREATED');
         this.generateUFO();
         this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
     }
@@ -507,21 +501,25 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     Array.prototype.push.apply(this.projectiles, allUFOprojectiles);
     this.ufos = this.ufos.filter(el => el != null);//clean up null entries caused by destroying ufos
 
-    //CRUDE COLLISION CHECK FOR PLAYER AND UFOS
+    this.checkCollisions();
+}
+
+MyGame.objects.GameModel.prototype.checkCollisions = function () {
+    //NAIVE COLLISION CHECK FOR PLAYER AND UFOS
     for (let ufo in this.ufos) {
         if (this.collides(this.player, this.ufos[ufo])) {
             this.losePlayerLife();
             return;
         }
     }
-    //CRUDE COLLISION CHECK FOR PLAYER AND ASTEROIDS
+    //NAIVE COLLISION CHECK FOR PLAYER AND ASTEROIDS
     for (let ast in this.asteroids) {
         if (this.collides(this.player, this.asteroids[ast])) {
             this.losePlayerLife();
             return;
         }
     }
-    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND ASTEROIDS
+    ///NAIVE COLLISION DETECTION AMONG PROJECTILES AND ASTEROIDS
     for (let ast in this.asteroids) {
         for (let laser in this.projectiles) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
@@ -535,16 +533,16 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
             }
         }
     }
-    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND UFOS
+    ///NAIVE COLLISION DETECTION AMONG PROJECTILES AND UFOS
     for (let ufo in this.ufos) {
         for (let laser in this.projectiles) {
-            if(this.projectiles[laser].owner.id != this.ufos[ufo].id){
+            if (this.projectiles[laser].owner.id != this.ufos[ufo].id) {
                 if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
                     // console.log('HIT');
                     // console.log('lasers', this.projectiles)
                     this.incrementScore(this.UFO_KILL_SCORE);
                     this.notifyUFO(this.ufos[ufo]);
-                    
+
                     this.projectiles[laser] = null;
                     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     break;
@@ -552,32 +550,45 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
             }
         }
     }
-    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND PROJECTILES
-    outerProjectilesLooop:
+    ///NAIVE COLLISION DETECTION AMONG PROJECTILES AND PROJECTILES
+    outerProjectilesLoop:
     for (let laser1 in this.projectiles) {
         for (let laser in this.projectiles) {
-            if(this.projectiles[laser].owner.shipType != this.projectiles[laser1].owner.shipType){
+            if (this.projectiles[laser].owner.shipType != this.projectiles[laser1].owner.shipType) {
                 if (this.collides(this.projectiles[laser], this.projectiles[laser1])) {
                     this.incrementScore(this.UFO_PROJECTILE_KILL_SCORE);
-                    if(this.projectiles[laser1].owner.type == 'player'){
+                    if (this.projectiles[laser1].owner.type == 'player') {
                         this.notifyProjectile(this.projectiles[laser]);
                         this.projectiles[laser1] = null;
                         this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
-                    }else{
+                    } else {
                         this.notifyProjectile(this.projectiles[laser]);
                         this.projectiles[laser1] = null;
                         this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     }
-                    
-                    break outerProjectilesLooop;
+
+                    break outerProjectilesLoop;
                 }
+            }
+        }
+    }
+    ///CRUDE COLLISION DETECTION AMONG PROJECTILES AND PLAYER
+    for (let laser in this.projectiles) {
+        if (this.projectiles[laser].owner.shipType != 'player') {//make sure player doesn't shoot self
+            if (this.collides(this.projectiles[laser], this.player)) {
+
+                this.losePlayerLife();
+                this.projectiles[laser] = null;
+                this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying laser
+                break;
             }
         }
     }
 }
 
 MyGame.objects.GameModel.prototype.render = function () {
-    this.projectiles.forEach(function (projectile) {//render projectiles
+    //render projectiles
+    this.projectiles.forEach(function (projectile) {
         if (projectile != null) {
             projectile.render();
         }
@@ -593,9 +604,8 @@ MyGame.objects.GameModel.prototype.render = function () {
     });
 
     //render asteroids
-    this.asteroids.forEach(function (asteroid) {//render projectiles
+    this.asteroids.forEach(function (asteroid) {
         if (asteroid != null) {
-            // console.log(asteroid)
             asteroid.render();
             if (RENDER_COLLIDERS || RENDER_COLLIDERS_ASTEROIDS) {
 
@@ -604,7 +614,7 @@ MyGame.objects.GameModel.prototype.render = function () {
                         x: asteroid.center.x,
                         y: asteroid.center.y
                     },
-                    circum: asteroid.size.x
+                    circum: asteroid.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
@@ -620,36 +630,35 @@ MyGame.objects.GameModel.prototype.render = function () {
                         x: asteroid.center.x + GAME_SIZE_X,
                         y: asteroid.center.y
                     },
-                    circum: asteroid.size.x
+                    circum: asteroid.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: asteroid.center.x - GAME_SIZE_X,
                         y: asteroid.center.y
                     },
-                    circum: asteroid.size.x
+                    circum: asteroid.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: asteroid.center.x,
                         y: asteroid.center.y + GAME_SIZE_Y
                     },
-                    circum: asteroid.size.x
+                    circum: asteroid.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: asteroid.center.x,
                         y: asteroid.center.y - GAME_SIZE_Y
                     },
-                    circum: asteroid.size.x
+                    circum: asteroid.collider[0][0].circumference
                 });
             }
         }
     });
     //render UFOs
-    this.ufos.forEach(function (ufo) {//render projectiles
+    this.ufos.forEach(function (ufo) {
         if (ufo != null) {
-            // console.log(asteroid)
             ufo.render();
             if (RENDER_COLLIDERS || RENDER_COLLIDERS_UFOS) {
 
@@ -658,7 +667,7 @@ MyGame.objects.GameModel.prototype.render = function () {
                         x: ufo.center.x,
                         y: ufo.center.y
                     },
-                    circum: ufo.size.x
+                    circum: ufo.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
@@ -674,28 +683,28 @@ MyGame.objects.GameModel.prototype.render = function () {
                         x: ufo.center.x + GAME_SIZE_X,
                         y: ufo.center.y
                     },
-                    circum: ufo.size.x
+                    circum: ufo.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: ufo.center.x - GAME_SIZE_X,
                         y: ufo.center.y
                     },
-                    circum: ufo.size.x
+                    circum: ufo.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: ufo.center.x,
                         y: ufo.center.y + GAME_SIZE_Y
                     },
-                    circum: ufo.size.x
+                    circum: ufo.collider[0][0].circumference
                 });
                 MyGame.graphics.drawCircle({
                     center: {
                         x: ufo.center.x,
                         y: ufo.center.y - GAME_SIZE_Y
                     },
-                    circum: ufo.size.x
+                    circum: ufo.collider[0][0].circumference
                 });
             }
         }
@@ -716,7 +725,7 @@ MyGame.objects.GameModel.prototype.render = function () {
                 x: this.player.center.x,
                 y: this.player.center.y
             },
-            circum: this.player.size.x
+            circum: this.player.collider[0][0].circumference
         });
 
         MyGame.graphics.drawCircle({//render player respawn buffer from last attempt at random spawn point

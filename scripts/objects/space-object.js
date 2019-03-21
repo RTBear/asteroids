@@ -25,13 +25,15 @@ MyGame.objects.SpaceObject = function (spec) {
     this.size.x = spec.size.x;//TODO: For now could use this (the larger of x or y) as diameter for bounding circle... ideally should sub-divide or maybe add a "collider" property
     this.size.y = spec.size.y;
 
+
+    let colliderSize = 0.75;
     this.collider = [];//array of hierarchical bounding sub-divisions e.g. [[circle1],[circle2,circle3,circle4]] where circle1 is largest, outermost bounding circle and circles 2-4 are inner circles. Can add as many layers as desired.
     if(this.size.x > this.size.y){
         //if wider than tall
-        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x)]);
+        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.x * colliderSize)]);
     }else{
         //if taller than wide
-        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y)]);
+        this.collider.push([new MyGame.objects.Circle(this.center.x,this.center.y,this.size.y * colliderSize)]);
     }
 
     this.orientation = {};
