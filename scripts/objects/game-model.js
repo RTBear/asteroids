@@ -29,7 +29,7 @@ MyGame.objects.GameModel = function () {
         graphics: MyGame.graphics,
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
-    this.remainingLives = 1; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
+    this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufo = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
@@ -57,7 +57,7 @@ MyGame.objects.GameModel = function () {
             })
         }
     }
-    console.log('SPAWN POINTS', this.spawnPoints);
+    // console.log('SPAWN POINTS', this.spawnPoints);
 
     this.maxRecDep = 20;//maximum recursive depth for functions which use this
     this.computeSafeLocationCounter = this.maxRecDep;
@@ -430,7 +430,7 @@ MyGame.objects.GameModel.prototype.render = function () {
                     x: projectile.center.x,
                     y: projectile.center.y
                 },
-                circum: projectile.size.x
+                circum: projectile.collider[0][0].circumference
             });
         }
     });
