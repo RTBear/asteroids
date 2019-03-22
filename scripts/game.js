@@ -10,11 +10,15 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
     let lastTimeStamp = performance.now();
 
-    let myKeyboard = input.Keyboard();
+    let gameKeyboard = input.Keyboard();
+    let menuKeyboard = input.Keyboard();
 
     let particleSystem = systems.ParticleSystem();
 
     let gameModel = new objects.GameModel(particleSystem);
+
+    // let menu = new systems.Menu();
+    let menu = systems.Menu();
 
     function gameOver() {
         console.log("GAME OVER");
@@ -97,17 +101,25 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         updateHUD();
     }
 
-    function processInput(elapsedTime) {
-        myKeyboard.update(elapsedTime);
+    function processGameInput(elapsedTime) {
+        // console.log('gameKeyboard')
+        gameKeyboard.update(elapsedTime);
+        // myMouse.update(elapsedTime);
+    }
+
+    function processMenuInput(elapsedTime) {
+        // console.log('menuKeyboard')
+        menuKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
 
     function gameLoop(time) {
         var elapsedTime = (time - lastTimeStamp);
         update(elapsedTime);
-
+        processMenuInput(elapsedTime);
+        
         if (!gameModel.gameOver) {
-            processInput(elapsedTime);
+            processGameInput(elapsedTime);
         } else {
             gameOver();
         }
@@ -117,17 +129,31 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         lastTimeStamp = time;
     };
 
-    //register inputs
-    myKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(gameModel.player));
-    myKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(gameModel.player));
-    myKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(gameModel.player));
+    // console.log('here',systems.Menu)
+    //register menu inputs
+    // menuKeyboard.register('ArrowUp', systems.Menu.prototype.menuUp.bind(menu));
+    // menuKeyboard.register('ArrowRight', systems.Menu.prototype.menuRight.bind(menu));
+    // menuKeyboard.register('ArrowDown', systems.Menu.prototype.menuDown.bind(menu));
+    // menuKeyboard.register('ArrowLeft', systems.Menu.prototype.menuLeft.bind(menu));
+    // menuKeyboard.register('Escape', systems.Menu.prototype.menuEsc.bind(menu));
 
-    myKeyboard.register('w', objects.Ship.prototype.accelerate.bind(gameModel.player));
-    myKeyboard.register('d', objects.Ship.prototype.turnRight.bind(gameModel.player));
-    myKeyboard.register('a', objects.Ship.prototype.turnLeft.bind(gameModel.player));
+    menuKeyboard.register('ArrowUp',menu.menuUp);
+    menuKeyboard.register('ArrowRight',menu.menuRight);
+    menuKeyboard.register('ArrowDown',menu.menuDown);
+    menuKeyboard.register('ArrowLeft',menu.menuLeft);
+    menuKeyboard.register('Escape',menu.menuEsc);
 
-    myKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(gameModel.player));
-    myKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
+    //register game inputs
+    gameKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(gameModel.player));
+    gameKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(gameModel.player));
+    gameKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(gameModel.player));
+
+    gameKeyboard.register('w', objects.Ship.prototype.accelerate.bind(gameModel.player));
+    gameKeyboard.register('d', objects.Ship.prototype.turnRight.bind(gameModel.player));
+    gameKeyboard.register('a', objects.Ship.prototype.turnLeft.bind(gameModel.player));
+
+    gameKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(gameModel.player));
+    gameKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
 
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;
