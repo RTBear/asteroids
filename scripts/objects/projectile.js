@@ -5,6 +5,7 @@
 // spec = {
 //    owner: , //reference to owner ship
 //    accelerationRate: , //float //speed per time
+//    range: , //time in ms till expires
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 //    //I think I have to include the spec stuff for things I inherit from (SpaceObject)
@@ -27,6 +28,8 @@ MyGame.objects.Projectile = function (spec) {
     this.owner = spec.owner;
     this.accelerationRate = spec.accelerationRate;
     this.rotation = spec.rotation;
+
+    this.range = spec.range;
 
 }
 
@@ -63,19 +66,39 @@ MyGame.objects.Projectile.prototype.accelerate = function (elapsedTime) {
     })
 }
 
-MyGame.objects.Projectile.prototype.set_center = function (center) { //override set_center for projectiles so they do not wrap around screen
-    this.center.x = center.x; 
-    this.center.y = center.y; 
+MyGame.objects.SpaceObject.prototype.remove = function(){ //override spaceobject remove method to add particle effect
+    this.explode();
+    this.expired = true; 
+}//doesn't actually remove object, just flags it for removal by gameModel
 
-    if (this.center.x > GAME_SIZE_X || this.center.x < 0 || this.center.y > GAME_SIZE_Y || this.center.y < 0){
-        this.remove();
+MyGame.objects.SpaceObject.prototype.explode = function(){
+    if(this.owner != null){
+        if(this.owner.shipType == 'player'){
+            var explosionImg = './assets/particle-effects/blue.png';
+        }else{
+            var explosionImg = './assets/particle-effects/ship-piece.png';
+        }
+        // let angle = this.rotation * 180 / Math.PI - 90;//convert to degrees 
+        // console.log(this.rotation);
+        // // console.log(this.get_rotation());
+        // console.log(angle);
+        // this.owner.particleSystem.createExhaust(this.center.x, this.center.y, this.size.x * 5, './assets/particle-effects/blue.png', {min: angle - 45, max: angle + 45});
+
+        this.owner.particleSystem.createExplosion(this.center.x, this.center.y, this.size.x * 0.5, explosionImg);
     }
 }
 
 MyGame.objects.Projectile.prototype.update = function (elapsedTime) {
+    this.range -= elapsedTime;
+    //check if expired
+    if (this.range <= 0){
+        this.remove();
+        return;
+    }
+    
     MyGame.objects.SpaceObject.prototype.update.call(this, elapsedTime);
 
-    if(this.owner.shipType == 'ufo'){
+    if(this.owner.shipType == 'ufo'){//add thrust particle effects
         let angle = this.rotation * 180 / Math.PI + 90;//convert to degrees 
         this.owner.particleSystem.createExhaust(this.center.x, this.center.y, this.size.x, './assets/particle-effects/blue.png', {min: angle - 5, max: angle + 6});
     }

@@ -196,7 +196,7 @@ MyGame.objects.GameModel.prototype.randomObstacleSpawn = function () {
         top: {
             zone: 'top',
             x: Random.nextRange(0, GAME_SIZE_X),
-            y: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer, GAME_SIZE_Y),
+            y: Random.nextRange(0, this.player.center.y - this.playerSpawnBuffer, GAME_SIZE_Y),
             rotation: Random.nextRange(225, 315) * Math.PI / 180,
         },
         right: {
@@ -208,7 +208,7 @@ MyGame.objects.GameModel.prototype.randomObstacleSpawn = function () {
         bottom: {
             zone: 'bottom',
             x: Random.nextRange(0, GAME_SIZE_X),
-            y: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_Y),
+            y: Random.nextRange(this.player.center.y + this.playerSpawnBuffer, GAME_SIZE_Y),
             rotation: Random.nextRange(45, 135) * Math.PI / 180,
         },
         left: {
@@ -432,11 +432,10 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
         if (this.player.requestNewLocation == true) {
-            
+
             this.player.requestNewLocation = false;
-            
+
             this.player.respawn(this.computeSafeLocation());
-            this.particleSystem.createExplosion(this.player.center.x, this.player.center.y, this.player.size.x * 3, './assets/particle-effects/yellow.png');
         }
 
         //clean up any expired projectiles
@@ -533,10 +532,12 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
     for (let ast in this.asteroids) {
         for (let laser in this.projectiles) {
             if (this.collides(this.projectiles[laser], this.asteroids[ast])) {
-                // console.log('HIT');
-                // console.log('lasers', this.projectiles)
-                this.incrementScore(Math.ceil(ASTEROID_SIZES.LARGE / this.asteroids[ast].size.x));
+                if (this.projectiles[laser].owner.shipType == 'player') {
+                    this.incrementScore(Math.ceil(ASTEROID_SIZES.LARGE / this.asteroids[ast].size.x));
+                }
                 this.notifyAsteroid(this.asteroids[ast]);
+
+                this.projectiles[laser].explode();
                 this.projectiles[laser] = null;
                 this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired asteroids
                 break;
@@ -553,6 +554,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
                     this.incrementScore(this.UFO_KILL_SCORE);
                     this.notifyUFO(this.ufos[ufo]);
 
+                    this.projectiles[laser].explode();
                     this.projectiles[laser] = null;
                     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     break;
@@ -569,11 +571,13 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
                     this.incrementScore(this.UFO_PROJECTILE_KILL_SCORE);
                     if (this.projectiles[laser1].owner.type == 'player') {
                         this.notifyProjectile(this.projectiles[laser]);
+                        this.projectiles[laser1].explode();
                         this.projectiles[laser1] = null;
                         this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     } else {
-                        this.notifyProjectile(this.projectiles[laser]);
-                        this.projectiles[laser1] = null;
+                        this.notifyProjectile(this.projectiles[laser1]);
+                        this.projectiles[laser].explode();
+                        this.projectiles[laser] = null;
                         this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired ufos
                     }
 

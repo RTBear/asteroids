@@ -129,7 +129,8 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
             rotation: current_rotation, //float //orientation angle
             maxSpeed: this.projectileSpeed, //float //max magnitude of momentum
             momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
-            graphics: this.graphics//reference to graphics renderer (MyGame.graphics)
+            graphics: this.graphics,//reference to graphics renderer (MyGame.graphics)
+            range: 1 * 1000,
         });
 
         this.projectiles.push(laser);
