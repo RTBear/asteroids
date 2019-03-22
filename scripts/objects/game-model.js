@@ -358,19 +358,6 @@ MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {//TODO
         let distForSP = 0;//total distance from safepoint to all dangerous objects
         let closestDanger = GAME_SIZE_X * GAME_SIZE_X + GAME_SIZE_Y * GAME_SIZE_Y; //can't be farther than this
 
-        ///////////// ASTEROIDS /////////////
-        // for (ast of this.asteroids) {
-        //     let dist = this.computeDistance(sp.x, sp.y, ast.center.x, ast.center.y);
-        //     let collisionDist = (dist - (ast.size.x / 2));//distance from spawn point to center of asteroid - radius of asteroid
-        //     if (collisionDist < closestDanger) {
-        //         closestDanger = collisionDist;//check if new distance is the closest seen
-        //     }
-        //     if (closestDanger < this.player.collider[0][0].circumference / 2) {//if it would immediately collide with outermost collider for player
-        //         break;//break out early
-        //     }
-        //     distForSP += collisionDist;
-        // }
-
         let ufoProjectiles = this.projectiles.filter(proj => proj.owner.shipType != 'player');
 
         for (let obj of Array.prototype.concat(this.asteroids, ufoProjectiles, this.ufos)) {
@@ -459,7 +446,6 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
     if (this.player.requestNewLocation == true) {
         this.player.requestNewLocation = false;
-        // console.log('--------------------------------------------------')
 
         this.player.respawn(this.computeSafeLocation());
     }
