@@ -13,7 +13,7 @@
 
 MyGame.systems.Menu = function () {
     'use strict';
-    
+
     let menuElement = document.querySelector('#menu');
     // just html objects
     let menuStates = {
@@ -51,12 +51,12 @@ MyGame.systems.Menu = function () {
         },
         // settings: ,
     }
-    
+
     let currentState = menuStates.main;
     let previousState = menuStates.main;
     let currentSelection = menuStates.newgame;
     let menuStack = [menuStates.main]; //can use an array like a stack for this
-    
+
     function menuUp() {
         console.log('menuUp');
     }
@@ -82,51 +82,61 @@ MyGame.systems.Menu = function () {
     }
 
     function menuEsc() {
-        console.log('menuEsc',currentState.name);//go back a level. or if during play, toggle pause screen
-        if (currentState.name == 'play'){//if playing
+        console.log('menuEsc', currentState.name);//go back a level. or if during play, toggle pause screen
+        if (currentState.name == 'play') {//if playing
             console.log('pause');
             previousState = currentState;
             currentState = menuStates.pause;
-        } else if (currentState.name == 'pause'){//if paused
+        } else if (currentState.name == 'pause') {//if paused
             console.log('play');
             previousState = currentState;
             currentState = menuStates.play;
         } else if (currentState.name != 'main') {//if not on main menu
             console.log('go back menu level');
             // hideElement(menuStack[menuStack.length - 1].element);
-            menuStack.pop();//remove last item
-            previousState = currentState;
-            currentState = menuStack[menuStack.length - 1];
+            goBackOneState();
         }
     }
 
-    function hideElement(el){
-        el.setAttribute('style','display:none;');
+    function hideElement(el) {
+        el.setAttribute('style', 'display:none;');
     }
 
-    function showElement(el){
-        el.setAttribute('style','display:block;');
+    function showElement(el) {
+        el.setAttribute('style', 'display:block;');
     }
 
-    function addState(newState){
+    function addState(newState) {
         previousState = currentState;
         menuStack.push(newState);
         currentState = newState;
     }
 
-    function addStateByName(newStateName){
+    function addStateByName(newStateName) {
         previousState = currentState;
         menuStack.push(menuStates[newStateName]);
         currentState = menuStates[newStateName];
     }
 
-    function showMenu(){
-        if(previousState.name != currentState.name){//if there has been a change in menu state
+    function goBackOneState() {
+        menuStack.pop();//remove last item
+        previousState = currentState;
+        currentState = menuStack[menuStack.length - 1];
+    }
+
+    function goToMainMenu() {
+        menuStack = [];
+        previousState = currentState;
+        currentState = menuStates.main;
+    }
+
+    function showMenu() {
+        if (previousState.name != currentState.name) {//if there has been a change in menu state
             // console.log('p',previousState.name)
             // console.log('c',currentState.name)
-            if(currentState.name == 'play'){
+            if (currentState.name == 'play') {
                 hideElement(menuElement);
-            }else{
+            } else {
                 showElement(menuElement);
             }
             hideElement(previousState.element);
@@ -146,6 +156,8 @@ MyGame.systems.Menu = function () {
         addState: addState,
         addStateByName: addStateByName,
         showMenu: showMenu,
+        goBackOneState: goBackOneState,
+        goToMainMenu: goToMainMenu,
         get currentState() { return currentState; },
         get menuStates() { return currentState; },
     };

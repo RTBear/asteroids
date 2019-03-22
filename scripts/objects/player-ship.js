@@ -138,6 +138,13 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
     }
 }
 
+MyGame.objects.PlayerShip.prototype.reset = function () {
+    this.respawn({
+        x: GAME_SIZE_X / 2,
+        y: GAME_SIZE_Y / 2,
+    });
+}
+
 MyGame.objects.PlayerShip.prototype.respawn = function (location) {
     this.center.x = location.x;
     this.center.y = location.y;

@@ -102,33 +102,33 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         gameModel.render();
         updateHUD();
     }
-    
+
     function processGameInput(elapsedTime) {
         // console.log('gameKeyboard')
         gameKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
-    
+
     function processMenuInput(elapsedTime) {
         // console.log('menuKeyboard')
         menuKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
-    
+
     function gameLoop(time) {
         var elapsedTime = (time - lastTimeStamp);
         // if(menu.currentState.name == )
         menu.showMenu();
         processMenuInput(elapsedTime);
-        if(menu.currentState.name != 'pause'){
+        if (menu.currentState.name != 'pause') {
             update(elapsedTime);
-            
-            if (!gameModel.gameOver) {
+
+            if (!gameModel.gameOver && menu.currentState.name == 'play') {
                 processGameInput(elapsedTime);
-            } else {
+            } else if (gameModel.gameOver) {
                 gameOver();
             }
-            
+
             render();
         }
         requestAnimationFrame(gameLoop);
@@ -154,6 +154,10 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     gameKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(gameModel.player));
     gameKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
 
+
+    gameKeyboard.register('c', objects.GameModel.prototype.clearGame.bind(gameModel));
+    gameKeyboard.register('n', objects.GameModel.prototype.newGame.bind(gameModel));
+
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;
         GAME_SIZE_Y = window.innerHeight;
@@ -162,10 +166,24 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         gameModel.calculateSpawnPoints();
     });
 
-    document.querySelector('#newgame-btn').addEventListener('click',()=>{menu.addStateByName('play')});
-    document.querySelector('#highscores-btn').addEventListener('click',()=>{menu.addStateByName('highscores')});
-    document.querySelector('#help-btn').addEventListener('click',()=>{menu.addStateByName('help')});
-    document.querySelector('#credits-btn').addEventListener('click',()=>{menu.addStateByName('credits')});
+    document.querySelectorAll('.newgame-btn').forEach((el) => {
+        el.addEventListener('click', () => {
+            menu.addStateByName('play');
+            gameModel.newGame();
+        });
+    });
+
+    document.querySelectorAll('.mainmenu-btn').forEach((el) => {
+        el.addEventListener('click', () => {
+            menu.goToMainMenu();
+            gameModel.clearGame();
+        });
+    });
+
+
+    document.querySelector('#highscores-btn').addEventListener('click', () => { menu.addStateByName('highscores'); });
+    document.querySelector('#help-btn').addEventListener('click', () => { menu.addStateByName('help'); });
+    document.querySelector('#credits-btn').addEventListener('click', () => { menu.addStateByName('credits'); });
 
 
     requestAnimationFrame(gameLoop);

@@ -6,7 +6,7 @@
 MyGame.objects.GameModel = function (particleSystem) {
     'use strict';
     this.nextID = 0;
-    this.entities = [];//array of SpaceStates //TODO
+    // this.entities = [];//array of SpaceStates //TODO
     console.log(particleSystem);
     this.particleSystem = particleSystem;
 
@@ -44,6 +44,7 @@ MyGame.objects.GameModel = function (particleSystem) {
     this.score = 0; //int //current score
     this.level = 0; //int //current level
     this.gameOver = false; //is game over?
+    this.gameStarted = false; //have we started yet?
     this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
 
     this.maxAsteroidSpeedModifier = 100;
@@ -82,6 +83,7 @@ MyGame.objects.GameModel = function (particleSystem) {
     this.maxRecDep = 20;//maximum recursive depth for functions which use this
     this.computeSafeLocationCounter = this.maxRecDep;
 }
+
 MyGame.objects.GameModel.prototype.choose = function (list) {
     //choose a random item from a list
     index = Random.nextRange(0, list.length);
@@ -413,19 +415,8 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: fa
     }
 }
 
-////////////////////////////////////////////////////////////
-//  _______  _______  ______   _______ _________ _______  //
-// |\     /|(  ____ )(  __  \ (  ___  )\__   __/(  ____ \ //
-// | )   ( || (    )|| (  \  )| (   ) |   ) (   | (    \/ //
-// | |   | || (____)|| |   ) || (___) |   | |   | (__     //
-// | |   | ||  _____)| |   | ||  ___  |   | |   |  __)    //
-// | |   | || (      | |   ) || (   ) |   | |   | (       //
-// | (___) || )      | (__/  )| )   ( |   | |   | (____/\ //
-// (_______)|/       (______/ |/     \|   )_(   (_______/ //
-////////////////////////////////////////////////////////////                                                   
-
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
-    if (!this.gameOver) {
+    if (!this.gameOver && this.gameStarted) {
         this.player.update(elapsedTime);
         //add player projectiles to game
         Array.prototype.push.apply(this.projectiles, this.player.projectiles);
@@ -603,172 +594,213 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
 }
 
 MyGame.objects.GameModel.prototype.render = function () {
-    //render projectiles
-    this.projectiles.forEach(function (projectile) {
-        if (projectile != null) {
-            projectile.render();
-        }
-        if (RENDER_COLLIDERS || RENDER_COLLIDERS_PROJECTILES) {
-            MyGame.graphics.drawCircle({
-                center: {
-                    x: projectile.center.x,
-                    y: projectile.center.y
-                },
-                circum: projectile.collider[0][0].circumference
-            });
-        }
-    });
-
-    //render asteroids
-    this.asteroids.forEach(function (asteroid) {
-        if (asteroid != null) {
-            asteroid.render();
-            if (RENDER_COLLIDERS || RENDER_COLLIDERS_ASTEROIDS) {
-
+    if (this.gameStarted) {
+        //render projectiles
+        this.projectiles.forEach(function (projectile) {
+            if (projectile != null) {
+                projectile.render();
+            }
+            if (RENDER_COLLIDERS || RENDER_COLLIDERS_PROJECTILES) {
                 MyGame.graphics.drawCircle({
                     center: {
-                        x: asteroid.center.x,
-                        y: asteroid.center.y
+                        x: projectile.center.x,
+                        y: projectile.center.y
                     },
-                    circum: asteroid.collider[0][0].circumference
+                    circum: projectile.collider[0][0].circumference
                 });
+            }
+        });
+
+        //render asteroids
+        this.asteroids.forEach(function (asteroid) {
+            if (asteroid != null) {
+                asteroid.render();
+                if (RENDER_COLLIDERS || RENDER_COLLIDERS_ASTEROIDS) {
+
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x,
+                            y: asteroid.center.y
+                        },
+                        circum: asteroid.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x,
+                            y: asteroid.center.y
+                        },
+                        circum: 5
+                    });
+
+                    //render where the asteroid will be on wrap-around //TODO: render actual asteroid in these locations and calculate collisions there too
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x + GAME_SIZE_X,
+                            y: asteroid.center.y
+                        },
+                        circum: asteroid.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x - GAME_SIZE_X,
+                            y: asteroid.center.y
+                        },
+                        circum: asteroid.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x,
+                            y: asteroid.center.y + GAME_SIZE_Y
+                        },
+                        circum: asteroid.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: asteroid.center.x,
+                            y: asteroid.center.y - GAME_SIZE_Y
+                        },
+                        circum: asteroid.collider[0][0].circumference
+                    });
+                }
+            }
+        });
+        //render UFOs
+        this.ufos.forEach(function (ufo) {
+            if (ufo != null) {
+                ufo.render();
+                if (RENDER_COLLIDERS || RENDER_COLLIDERS_UFOS) {
+
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x,
+                            y: ufo.center.y
+                        },
+                        circum: ufo.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x,
+                            y: ufo.center.y
+                        },
+                        circum: 5
+                    });
+
+                    //render where the ufo will be on wrap-around //TODO: render actual ufo in these locations and calculate collisions there too
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x + GAME_SIZE_X,
+                            y: ufo.center.y
+                        },
+                        circum: ufo.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x - GAME_SIZE_X,
+                            y: ufo.center.y
+                        },
+                        circum: ufo.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x,
+                            y: ufo.center.y + GAME_SIZE_Y
+                        },
+                        circum: ufo.collider[0][0].circumference
+                    });
+                    MyGame.graphics.drawCircle({
+                        center: {
+                            x: ufo.center.x,
+                            y: ufo.center.y - GAME_SIZE_Y
+                        },
+                        circum: ufo.collider[0][0].circumference
+                    });
+                }
+            }
+        });
+
+        if (RENDER_COLLIDERS || RENDER_COLLIDERS_PLAYER) {
+
+            MyGame.graphics.drawCircle({//render current player respawn buffer
+                center: {
+                    x: this.player.center.x,
+                    y: this.player.center.y
+                },
+                circum: this.playerSpawnBuffer * 2
+            });
+
+            MyGame.graphics.drawCircle({ //render player collider
+                center: {
+                    x: this.player.center.x,
+                    y: this.player.center.y
+                },
+                circum: this.player.collider[0][0].circumference
+            });
+
+            MyGame.graphics.drawCircle({//render player respawn buffer from last attempt at random spawn point
+                center: {
+                    x: this.possibleLocation_x,
+                    y: this.possibleLocation_y
+                },
+                circum: this.playerSpawnBuffer * 2
+            });
+
+        }
+
+        if (!this.gameOver) {
+            this.player.renderer.render();//render player
+        }
+
+        if (RENDER_SPAWN_POINTS) {
+
+            this.spawnPoints.forEach(function (sp) {//render spawn points
+                // console.log(asteroid)
                 MyGame.graphics.drawCircle({
                     center: {
-                        x: asteroid.center.x,
-                        y: asteroid.center.y
+                        x: sp.x,
+                        y: sp.y
                     },
                     circum: 5
                 });
-
-                //render where the asteroid will be on wrap-around //TODO: render actual asteroid in these locations and calculate collisions there too
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: asteroid.center.x + GAME_SIZE_X,
-                        y: asteroid.center.y
-                    },
-                    circum: asteroid.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: asteroid.center.x - GAME_SIZE_X,
-                        y: asteroid.center.y
-                    },
-                    circum: asteroid.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: asteroid.center.x,
-                        y: asteroid.center.y + GAME_SIZE_Y
-                    },
-                    circum: asteroid.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: asteroid.center.x,
-                        y: asteroid.center.y - GAME_SIZE_Y
-                    },
-                    circum: asteroid.collider[0][0].circumference
-                });
-            }
-        }
-    });
-    //render UFOs
-    this.ufos.forEach(function (ufo) {
-        if (ufo != null) {
-            ufo.render();
-            if (RENDER_COLLIDERS || RENDER_COLLIDERS_UFOS) {
-
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x,
-                        y: ufo.center.y
-                    },
-                    circum: ufo.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x,
-                        y: ufo.center.y
-                    },
-                    circum: 5
-                });
-
-                //render where the ufo will be on wrap-around //TODO: render actual ufo in these locations and calculate collisions there too
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x + GAME_SIZE_X,
-                        y: ufo.center.y
-                    },
-                    circum: ufo.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x - GAME_SIZE_X,
-                        y: ufo.center.y
-                    },
-                    circum: ufo.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x,
-                        y: ufo.center.y + GAME_SIZE_Y
-                    },
-                    circum: ufo.collider[0][0].circumference
-                });
-                MyGame.graphics.drawCircle({
-                    center: {
-                        x: ufo.center.x,
-                        y: ufo.center.y - GAME_SIZE_Y
-                    },
-                    circum: ufo.collider[0][0].circumference
-                });
-            }
-        }
-    });
-
-    if (RENDER_COLLIDERS || RENDER_COLLIDERS_PLAYER) {
-
-        MyGame.graphics.drawCircle({//render current player respawn buffer
-            center: {
-                x: this.player.center.x,
-                y: this.player.center.y
-            },
-            circum: this.playerSpawnBuffer * 2
-        });
-
-        MyGame.graphics.drawCircle({ //render player collider
-            center: {
-                x: this.player.center.x,
-                y: this.player.center.y
-            },
-            circum: this.player.collider[0][0].circumference
-        });
-
-        MyGame.graphics.drawCircle({//render player respawn buffer from last attempt at random spawn point
-            center: {
-                x: this.possibleLocation_x,
-                y: this.possibleLocation_y
-            },
-            circum: this.playerSpawnBuffer * 2
-        });
-
-    }
-
-    if (!this.gameOver) {
-        this.player.renderer.render();//render player
-    }
-
-    if (RENDER_SPAWN_POINTS) {
-
-        this.spawnPoints.forEach(function (sp) {//render spawn points
-            // console.log(asteroid)
-            MyGame.graphics.drawCircle({
-                center: {
-                    x: sp.x,
-                    y: sp.y
-                },
-                circum: 5
             });
-        });
+        }
     }
+}
+
+MyGame.objects.GameModel.prototype.clearGame = function () {
+    this.gameStarted = false;
+
+    //clear projectiles
+    for (let i = 0; i < this.projectiles.length; i++) {
+        this.projectiles[i] = null;
+    }
+    this.projectiles = [];
+
+    //clear ufos
+    for (let i = 0; i < this.ufos.length; i++) {
+        this.ufos[i] = null;
+    }
+    this.ufos = [];
+
+    //clear asteroids
+    for (let i = 0; i < this.asteroids.length; i++) {
+        this.asteroids[i] = null;
+    }
+    this.asteroids = [];
+
+    //reset player
+    this.player.reset();
+
+    // MyGame.graphics.clear();
+
+}
+
+MyGame.objects.GameModel.prototype.newGame = function () {
+    this.clearGame();
+    this.gameStarted = true;
+
+    this.nextID = 0;
+    this.score = 0;
+    this.level = 0;
+    this.remainingLives = 2; 
+
 }
