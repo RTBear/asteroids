@@ -42,13 +42,6 @@
         document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
         document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
 
-        window.addEventListener('resize', evt => {
-            GAME_SIZE_X = window.innerWidth;
-            GAME_SIZE_Y = window.innerHeight;
-            document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
-            document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
-        });
-
         console.log(GAME_SIZE_X, GAME_SIZE_Y)
         // document.querySelector('#game-canvas').style.width = GAME_SIZE_X;
         // document.querySelector('#game-canvas').style.height = GAME_SIZE_Y;

@@ -59,16 +59,21 @@ MyGame.objects.GameModel = function () {
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
     let spawnPointDensity = 20;
-    this.spawnPoints = [];
-    //calculate spawn points
-    for (let x = GAME_SIZE_X / spawnPointDensity; x < GAME_SIZE_X; x += GAME_SIZE_X / spawnPointDensity) {
-        for (let y = GAME_SIZE_Y / spawnPointDensity; y < GAME_SIZE_Y; y += GAME_SIZE_Y / spawnPointDensity) {
-            this.spawnPoints.push({
-                x: x,
-                y: y,
-            })
+
+    this.calculateSpawnPoints = function(){
+        this.spawnPoints = [];
+        //calculate spawn points
+        for (let x = GAME_SIZE_X / spawnPointDensity; x <= GAME_SIZE_X - GAME_SIZE_X / spawnPointDensity; x += GAME_SIZE_X / spawnPointDensity) {
+            for (let y = GAME_SIZE_Y / spawnPointDensity; y < GAME_SIZE_Y; y += GAME_SIZE_Y / spawnPointDensity) {
+                this.spawnPoints.push({
+                    x: x,
+                    y: y,
+                })
+            }
         }
     }
+
+    this.calculateSpawnPoints();
 
     this.maxRecDep = 20;//maximum recursive depth for functions which use this
     this.computeSafeLocationCounter = this.maxRecDep;
@@ -105,34 +110,35 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
     } else {
 
         //starting location will be random unless specified
-        let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
-            top: {
-                zone: 'top',
-                x: Random.nextRange(0, GAME_SIZE_X),
-                y: GAME_SIZE_Y,
-                rotation: Random.nextRange(225, 315) * Math.PI / 180,
-            },
-            right: {
-                zone: 'right',
-                x: GAME_SIZE_X,
-                y: Random.nextRange(0, GAME_SIZE_Y),
-                rotation: Random.nextRange(135, 225) * Math.PI / 180,
-            },
-            bottom: {
-                zone: 'bottom',
-                x: Random.nextRange(0, GAME_SIZE_X),
-                y: 0,
-                rotation: Random.nextRange(45, 135) * Math.PI / 180,
-            },
-            left: {
-                zone: 'left',
-                x: 0,
-                y: Random.nextRange(0, GAME_SIZE_Y),
-                rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
-            }
-        }
+        var spawnPoint = this.randomObstacleSpawn();
+        // let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
+        //     top: {
+        //         zone: 'top',
+        //         x: Random.nextRange(0, GAME_SIZE_X),
+        //         y: GAME_SIZE_Y,
+        //         rotation: Random.nextRange(225, 315) * Math.PI / 180,
+        //     },
+        //     right: {
+        //         zone: 'right',
+        //         x: GAME_SIZE_X,
+        //         y: Random.nextRange(0, GAME_SIZE_Y),
+        //         rotation: Random.nextRange(135, 225) * Math.PI / 180,
+        //     },
+        //     bottom: {
+        //         zone: 'bottom',
+        //         x: Random.nextRange(0, GAME_SIZE_X),
+        //         y: 0,
+        //         rotation: Random.nextRange(45, 135) * Math.PI / 180,
+        //     },
+        //     left: {
+        //         zone: 'left',
+        //         x: 0,
+        //         y: Random.nextRange(0, GAME_SIZE_Y),
+        //         rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
+        //     }
+        // }
 
-        var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
+        // var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
     }
 
     spec.center = {};
@@ -188,7 +194,58 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
     } else {
 
         //starting location will be random unless specified
-        let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
+        var spawnPoint = this.randomObstacleSpawn();
+        // let sides = {//TODO: don't always spawn on the edges .... this looks kinda silly with more asteroids. Spawn in a range between player location +- a buffer zone and edge of screen
+        //     top: {
+        //         zone: 'top',
+        //         x: Random.nextRange(0, GAME_SIZE_X),
+        //         y: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer, GAME_SIZE_Y),
+        //         rotation: Random.nextRange(225, 315) * Math.PI / 180,
+        //     },
+        //     right: {
+        //         zone: 'right',
+        //         x: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_X),
+        //         y: Random.nextRange(0, GAME_SIZE_Y),
+        //         rotation: Random.nextRange(135, 225) * Math.PI / 180,
+        //     },
+        //     bottom: {
+        //         zone: 'bottom',
+        //         x: Random.nextRange(0, GAME_SIZE_X),
+        //         y: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_Y),
+        //         rotation: Random.nextRange(45, 135) * Math.PI / 180,
+        //     },
+        //     left: {
+        //         zone: 'left',
+        //         x: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer),
+        //         y: Random.nextRange(0, GAME_SIZE_Y),
+        //         rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
+        //     }
+        // }
+
+        // var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
+    }
+
+    spec.center = {};
+    spec.center.x = spawnPoint.x;
+    spec.center.y = spawnPoint.y;
+
+    spec.rotation = spawnPoint.rotation;//orientation angle
+
+    //also random
+    spec.orientation = {};
+    spec.orientation.x = Math.cos(spec.rotation);
+    spec.orientation.y = Math.sin(spec.rotation);
+
+    spec.momentum = {};
+    spec.momentum.x = spec.orientation.x * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
+    spec.momentum.y = spec.orientation.y * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//larger asteroids will move slower
+
+    let ufo = new MyGame.objects.UFO(spec)
+    this.ufos.push(ufo);
+}
+
+MyGame.objects.GameModel.prototype.randomObstacleSpawn = function(){
+    let sides = {
             top: {
                 zone: 'top',
                 x: Random.nextRange(0, GAME_SIZE_X),
@@ -216,25 +273,7 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         }
 
         var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
-    }
-
-    spec.center = {};
-    spec.center.x = spawnPoint.x;
-    spec.center.y = spawnPoint.y;
-
-    spec.rotation = spawnPoint.rotation;//orientation angle
-
-    //also random
-    spec.orientation = {};
-    spec.orientation.x = Math.cos(spec.rotation);
-    spec.orientation.y = Math.sin(spec.rotation);
-
-    spec.momentum = {};
-    spec.momentum.x = spec.orientation.x * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//.4 to (5 to 15) //TODO slow this down (small asteroids often move faster than my lasers)
-    spec.momentum.y = spec.orientation.y * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//larger asteroids will move slower
-
-    let ufo = new MyGame.objects.UFO(spec)
-    this.ufos.push(ufo);
+        return spawnPoint;
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
@@ -472,7 +511,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
         this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
         for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
-            // this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
+            this.generateAsteroid(ASTEROID_SIZES.LARGE);
         }
     }
 

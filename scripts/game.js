@@ -144,5 +144,13 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     myKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(gameModel.player));
     myKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
 
+    window.addEventListener('resize', evt => {
+        GAME_SIZE_X = window.innerWidth;
+        GAME_SIZE_Y = window.innerHeight;
+        document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
+        document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
+        gameModel.calculateSpawnPoints();
+    });
+
     requestAnimationFrame(gameLoop);
 }(MyGame.systems, MyGame.render, MyGame.graphics, MyGame.objects, MyGame.input));
