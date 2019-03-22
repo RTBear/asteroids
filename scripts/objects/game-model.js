@@ -8,14 +8,14 @@ MyGame.objects.GameModel = function () {
     this.nextID = 0;
     this.entities = [];//array of SpaceStates //TODO
     this.player = new MyGame.objects.PlayerShip({
-        hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
-        // hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        hyperspaceCooldown: 5 * 1000,
-        // hyperspaceCooldown: .05 * 1000,
+        hyperspaceStatus: 0, //float // how long until it can be used (ms)
+        hyperspaceCooldown: 0.02 * 1000,
+        // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
+        // hyperspaceCooldown: 5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
-        // fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
+        fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
         projectileSpeed: 10,
         projectileAccelerationRate: 1,
 
@@ -31,7 +31,7 @@ MyGame.objects.GameModel = function () {
         shipType: 'player'
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
-    this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
+    this.remainingLives = 0; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufos = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
@@ -55,7 +55,7 @@ MyGame.objects.GameModel = function () {
     // this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
-    this.ufoSpawnTimeRange = { min: 1 * 1000, max: 2 * 1000 }; //range in milliseconds
+    this.ufoSpawnTimeRange = { min: .0001 * 1000, max: .0002 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
     let spawnPointDensity = 20;
@@ -302,6 +302,7 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
 }
 
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
+    console.log('DEAD :(', this.player.center)
     if (this.remainingLives <= 0) {
         this.remainingLives = 0;//make sure it does not keep going negative until overflow
         this.gameOver = true;
@@ -354,20 +355,36 @@ MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {//TODO
     let safestPoint = this.spawnPoints[0];
     let maxDistance = 0;
     for (sp of this.spawnPoints) {
-        // console.log(sp);
-        let distForSP = 0;
-        let closestAst = GAME_SIZE_X * GAME_SIZE_X + GAME_SIZE_Y * GAME_SIZE_Y; //can't be farther than this
-        for (ast of this.asteroids) {
-            let dist = this.computeDistance(sp.x, sp.y, ast.center.x, ast.center.y);
-            let collisionDist = (dist - (ast.size.x / 2));//distance from spawn point to center of asteroid - radius of asteroid
-            if (collisionDist < closestAst) {
-                closestAst = collisionDist;//check if new distance is the closest seen
+        let distForSP = 0;//total distance from safepoint to all dangerous objects
+        let closestDanger = GAME_SIZE_X * GAME_SIZE_X + GAME_SIZE_Y * GAME_SIZE_Y; //can't be farther than this
+
+        ///////////// ASTEROIDS /////////////
+        // for (ast of this.asteroids) {
+        //     let dist = this.computeDistance(sp.x, sp.y, ast.center.x, ast.center.y);
+        //     let collisionDist = (dist - (ast.size.x / 2));//distance from spawn point to center of asteroid - radius of asteroid
+        //     if (collisionDist < closestDanger) {
+        //         closestDanger = collisionDist;//check if new distance is the closest seen
+        //     }
+        //     if (closestDanger < this.player.collider[0][0].circumference / 2) {//if it would immediately collide with outermost collider for player
+        //         break;//break out early
+        //     }
+        //     distForSP += collisionDist;
+        // }
+
+        let ufoProjectiles = this.projectiles.filter(proj => proj.owner.shipType != 'player');
+
+        for (let obj of Array.prototype.concat(this.asteroids, ufoProjectiles, this.ufos)) {
+            let dist = this.computeDistance(sp.x, sp.y, obj.center.x, obj.center.y);
+            let collisionDist = (dist - (obj.size.x / 2));//distance from spawn point to center of obj minus radius of obj
+            if (collisionDist < closestDanger) {
+                closestDanger = collisionDist;//check if new distance is the closest seen
             }
-            if (closestAst < this.player.collider[0][0].circumference / 2) {//if it would immediately collide with outermost collider for player
+            if (closestDanger < this.player.collider[0][0].circumference / 2) {//if it would immediately collide with outermost collider for player
                 break;//break out early
             }
             distForSP += collisionDist;
         }
+
         if (distForSP > maxDistance) {
             //found the new safest point
             safestPoint = {
@@ -395,9 +412,11 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: fa
 
     // console.log('pl', possibleLocation_x, possibleLocation_y, '^^^^^^^^^^^^^^^^^^^^^^^^^^^');
     let safeLocation = true;
-    for (let ast in this.asteroids) {
-        if (this.computeDistance(this.asteroids[ast].center.x, this.asteroids[ast].center.y, possibleLocation_x, possibleLocation_y) < this.playerSpawnBuffer) {
-            // console.log(this.asteroids[ast].center)
+
+    let ufoProjectiles = this.projectiles.filter(proj => proj.owner.shipType != 'player');
+
+    for (let obj of Array.prototype.concat(this.asteroids, ufoProjectiles, this.ufos)) {
+        if (this.computeDistance(obj.center.x, obj.center.y, possibleLocation_x, possibleLocation_y) < this.playerSpawnBuffer) {
             safeLocation = false;
         }
     }
@@ -487,11 +506,11 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     if (this.currentUfoSpawnTimer > 0) {
         this.currentUfoSpawnTimer -= elapsedTime;
     } else {
-        if(this.UFOsLeftToSpawn > 0){
+        if (this.UFOsLeftToSpawn > 0) {
             this.generateUFO();
             this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset timer for next ufo
             this.UFOsLeftToSpawn--;
-        }else{
+        } else {
             this.UFOsLeftToSpawn = 0;
         }
     }
@@ -521,6 +540,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
     //NAIVE COLLISION CHECK FOR PLAYER AND UFOS
     for (let ufo in this.ufos) {
         if (this.collides(this.player, this.ufos[ufo])) {
+            console.log('ufo keeled you', this.ufos[ufo])
             this.losePlayerLife();
             return;
         }
@@ -528,6 +548,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
     //NAIVE COLLISION CHECK FOR PLAYER AND ASTEROIDS
     for (let ast in this.asteroids) {
         if (this.collides(this.player, this.asteroids[ast])) {
+            console.log('asteroid keeled you', this.asteroids[ast])
             this.losePlayerLife();
             return;
         }
@@ -590,7 +611,9 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
         if (this.projectiles[laser].owner.shipType != 'player') {//make sure player doesn't shoot self
             if (this.collides(this.projectiles[laser], this.player)) {
 
+                console.log('I`VE BEEN SHOT!', this.projectiles[laser])
                 this.losePlayerLife();
+
                 this.projectiles[laser] = null;
                 this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying laser
                 break;
