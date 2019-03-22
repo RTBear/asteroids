@@ -37,12 +37,19 @@
         const RENDER_COLLIDERS_UFOS = false;
         const RENDER_SPAWN_POINTS = false;
 
-        const GAME_SIZE_X = window.screen.availWidth;
-        const GAME_SIZE_Y = window.innerHeight;
-        document.querySelector('#game-canvas').setAttribute('width',GAME_SIZE_X);
-        document.querySelector('#game-canvas').setAttribute('height',GAME_SIZE_Y);
+        var GAME_SIZE_X = window.innerWidth;
+        var GAME_SIZE_Y = window.innerHeight;
+        document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
+        document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
 
-        console.log(GAME_SIZE_X,GAME_SIZE_Y)
+        window.addEventListener('resize', evt => {
+            GAME_SIZE_X = window.innerWidth;
+            GAME_SIZE_Y = window.innerHeight;
+            document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
+            document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
+        });
+
+        console.log(GAME_SIZE_X, GAME_SIZE_Y)
         // document.querySelector('#game-canvas').style.width = GAME_SIZE_X;
         // document.querySelector('#game-canvas').style.height = GAME_SIZE_Y;
         const ALMOST_ZERO = 0.000001; //gameplay constants
