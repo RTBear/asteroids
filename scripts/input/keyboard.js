@@ -17,18 +17,23 @@ MyGame.input.Keyboard = function () {
     that.update = function (elapsedTime) {
         for (let key in that.keys) {
             if (that.keys.hasOwnProperty(key)) {
-                // if (that.keys[key] != 'expired') {//uncomment to act only once per key press
+                if (that.keys[key] != 'expired') {//uncomment to act only once per key press
                     if (that.handlers[key]) {
-                        that.handlers[key](elapsedTime);
-                        that.keys[key] = 'expired';
+                        that.handlers[key].handler(elapsedTime);
+                        if(!that.handlers[key].canHold){
+                            that.keys[key] = 'expired';//if key is not 'holdable'
+                        }
                     }
-                // }
+                }
             }
         }
     };
 
-    that.register = function (key, handler) {
-        that.handlers[key] = handler;
+    that.register = function (key, handler, canHold=true) {
+        that.handlers[key] = {
+            handler: handler,
+            canHold: canHold,
+        };
     };
 
     window.addEventListener('keydown', keyPress);

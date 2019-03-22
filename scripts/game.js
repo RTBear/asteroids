@@ -129,19 +129,11 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         lastTimeStamp = time;
     };
 
-    // console.log('here',systems.Menu)
-    //register menu inputs
-    // menuKeyboard.register('ArrowUp', systems.Menu.prototype.menuUp.bind(menu));
-    // menuKeyboard.register('ArrowRight', systems.Menu.prototype.menuRight.bind(menu));
-    // menuKeyboard.register('ArrowDown', systems.Menu.prototype.menuDown.bind(menu));
-    // menuKeyboard.register('ArrowLeft', systems.Menu.prototype.menuLeft.bind(menu));
-    // menuKeyboard.register('Escape', systems.Menu.prototype.menuEsc.bind(menu));
-
-    menuKeyboard.register('ArrowUp',menu.menuUp);
-    menuKeyboard.register('ArrowRight',menu.menuRight);
-    menuKeyboard.register('ArrowDown',menu.menuDown);
-    menuKeyboard.register('ArrowLeft',menu.menuLeft);
-    menuKeyboard.register('Escape',menu.menuEsc);
+    menuKeyboard.register('ArrowUp', menu.menuUp, false);
+    menuKeyboard.register('ArrowRight', menu.menuRight, false);
+    menuKeyboard.register('ArrowDown', menu.menuDown, false);
+    menuKeyboard.register('ArrowLeft', menu.menuLeft, false);
+    menuKeyboard.register('Escape', menu.menuEsc, false);
 
     //register game inputs
     gameKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(gameModel.player));
