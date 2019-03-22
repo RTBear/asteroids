@@ -45,6 +45,19 @@ MyGame.objects.Ship.prototype.vectorMagnitude = function (v = { x: 0, y: 0 }) {
 }
 
 MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
+    if(this.exhaustLocation_left){//fire left particles
+        this.computeExhaustLocations();
+        //particle effects
+        let angle = this.get_rotation() * 180 / Math.PI + 90;//convert to degrees 
+        this.particleSystem.createExhaust(this.exhaustLocation_left.x, this.exhaustLocation_left.y, this.size.x, './assets/particle-effects/blue.png', {min: angle - 5, max: angle + 6});
+    }
+    if(this.exhaustLocation_right){//fire right particles
+        this.computeExhaustLocations();
+        //particle effects
+        let angle = this.get_rotation() * 180 / Math.PI + 90;//convert to degrees 
+        this.particleSystem.createExhaust(this.exhaustLocation_right.x, this.exhaustLocation_right.y, this.size.x, './assets/particle-effects/blue.png', {min: angle - 5, max: angle + 6});
+    }
+
     let current_momentum = this.get_momentum();
     let orientation = this.get_orientation();
     let max_speed = this.get_maxSpeed();

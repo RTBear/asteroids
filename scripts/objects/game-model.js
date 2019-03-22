@@ -17,13 +17,13 @@ MyGame.objects.GameModel = function (particleSystem) {
         // hyperspaceCooldown: 5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
-        // fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
-        fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
-        projectileSpeed: 10,
+        fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
+        // fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
+        projectileSpeed: 15,
         projectileAccelerationRate: 1,
 
         imageSrc: './assets/ships/starship.svg',   // Web server location of the image
-        center: { x: 300, y: 300 },
+        center: { x: GAME_SIZE_X / 2, y: GAME_SIZE_Y / 2 },
         size: { x: 50, y: 50 },
         orientation: { x: 0, y: 1 },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
         rotation: 0,//orientation angle
@@ -31,7 +31,8 @@ MyGame.objects.GameModel = function (particleSystem) {
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
         id: this.nextID++,
-        shipType: 'player'
+        shipType: 'player',
+        particleSystem: this.particleSystem,
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
@@ -150,6 +151,7 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         graphics: MyGame.graphics,
         id: this.nextID++,
         shipType: 'ufo',
+        particleSystem: this.particleSystem,
     }
     asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
     spec.imageSrc = this.choose(asteroidImageOptions);

@@ -46,6 +46,12 @@ MyGame.objects.PlayerShip = function (spec) {
     this.id = spec.id;
     this.shipType = spec.shipType;
 
+    this.computeExhaustLocations = function(){
+        this.exhaustLocation_left = {x: this.center.x - this.orientation.x * 14 - this.orientation.y * 5, y:this.center.y + this.orientation.y * 14 - this.orientation.x * 5};
+        this.exhaustLocation_right = {x: this.center.x - this.orientation.x * 14 + this.orientation.y * 5, y:this.center.y + this.orientation.y * 14 + this.orientation.x * 5};
+    }
+    this.computeExhaustLocations();
+
     // this.fireSound = new Audio();
 }
 
@@ -107,6 +113,9 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
 
         let guns = [{ x: gun0_x, y: gun0_y }, { x: gun1_x, y: gun1_y }, { x: gun2_x, y: gun2_y }, { x: gun3_x, y: gun3_y }]
         let nextGunToFire = this.nextGunToFire();
+
+        let angle = this.get_rotation() * 180 / Math.PI - 90;//convert to degrees 
+        this.particleSystem.createExhaust(guns[nextGunToFire].x, guns[nextGunToFire].y, this.size.x, './assets/particle-effects/ship-piece.png', {min: angle - 45, max: angle + 45});
 
         let laser = new MyGame.objects.Projectile({
             owner: this, //reference to owner ship

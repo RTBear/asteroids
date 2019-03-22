@@ -92,8 +92,8 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     function render() {
         graphics.clear();
 
-        gameModel.render();
         particleSystem.render();
+        gameModel.render();
         updateHUD();
     }
 

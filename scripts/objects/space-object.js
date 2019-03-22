@@ -26,7 +26,7 @@ MyGame.objects.SpaceObject = function (spec) {
     this.size.y = spec.size.y;
 
 
-    let colliderSize = 0.75;
+    let colliderSize = 0.8;
     this.collider = [];//array of hierarchical bounding sub-divisions e.g. [[circle1],[circle2,circle3,circle4]] where circle1 is largest, outermost bounding circle and circles 2-4 are inner circles. Can add as many layers as desired.
     if(this.size.x > this.size.y){
         //if wider than tall
@@ -54,6 +54,7 @@ MyGame.objects.SpaceObject = function (spec) {
         rotation: this.rotation,//these are intentionally passed by reference
         size: this.size,
     });
+    this.particleSystem = spec.particleSystem;
 
     this.expired = false;
 

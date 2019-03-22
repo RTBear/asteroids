@@ -26,6 +26,7 @@ MyGame.objects.Projectile = function (spec) {
 
     this.owner = spec.owner;
     this.accelerationRate = spec.accelerationRate;
+    this.rotation = spec.rotation;
 
 }
 
@@ -73,6 +74,11 @@ MyGame.objects.Projectile.prototype.set_center = function (center) { //override 
 
 MyGame.objects.Projectile.prototype.update = function (elapsedTime) {
     MyGame.objects.SpaceObject.prototype.update.call(this, elapsedTime);
+
+    if(this.owner.shipType == 'ufo'){
+        let angle = this.rotation * 180 / Math.PI + 90;//convert to degrees 
+        this.owner.particleSystem.createExhaust(this.center.x, this.center.y, this.size.x, './assets/particle-effects/blue.png', {min: angle - 5, max: angle + 6});
+    }
 
     this.accelerate(elapsedTime);
 

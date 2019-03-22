@@ -20,7 +20,7 @@ MyGame.systems.ParticleSystem = function () {
                 stdev: 100
             },
             effectLifetime: {
-                mean: 0.3,
+                mean: 0.2,
                 stdev: 0.05
             },
             particleLifetime: {
@@ -28,7 +28,42 @@ MyGame.systems.ParticleSystem = function () {
                 stdev: 0.01 * size / 20
             },
             imagSrc: imgSrc,//path to image for effect
+            directionRange: {
+                max: 361,
+                min: 0
+            },
         });
+        effects.push(effect);
+    }
+
+    function createExhaust(x, y, size, imgSrc, directionRange) {
+        let effect = new MyGame.systems.ParticleEffect({
+            center: {
+                x: x,
+                y: y
+            },
+            size: {
+                mean: size / 30 ,
+                stdev: size / 50
+            },
+            speed: {
+                // mean: 3 * size,
+                // stdev: 1 * size
+                mean: 600,
+                stdev: 100
+            },
+            effectLifetime: {
+                mean: 0.005,
+                stdev: 0.005
+            },
+            particleLifetime: {
+                mean: 0.5 * size / 20,
+                stdev: 0.01 * size / 20
+            },
+            imagSrc: imgSrc,//path to image for effect
+            directionRange: directionRange,
+        });
+        // console.log(effect)
         effects.push(effect);
     }
 
@@ -55,6 +90,7 @@ MyGame.systems.ParticleSystem = function () {
     let api = {
         update: update,
         createExplosion: createExplosion,
+        createExhaust: createExhaust,
         render: render,
         get effects() { return effects; }
     };

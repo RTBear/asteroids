@@ -9,6 +9,7 @@
 //     effectLifetime: { mean: , stdev:  },
 //     particleLifetime: { mean: , stdev:  },
 //     imagSrc: ,//path to image for effect
+//     direction: ,//direction range to fire particles in
 // }
 //
 //------------------------------------------------------------------
@@ -31,10 +32,11 @@ MyGame.systems.ParticleEffect = function (spec) {
 
     function create() {
         let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
+        let angle = Random.nextRange(spec.directionRange.min,spec.directionRange.max) * Math.PI / 180;//range in degrees... convert to direction in radians
         let p = {
             center: { x: spec.center.x, y: spec.center.y },
             size: { x: size, y: size },
-            direction: Random.nextCircleVector(),
+            direction: { x: Math.cos(angle), y: Math.sin(angle) },
             speed: Random.nextGaussian(spec.speed.mean, spec.speed.stdev), // pixels per second
             rotation: 0,
             particleLifetime: Random.nextGaussian(spec.particleLifetime.mean, spec.particleLifetime.stdev), // seconds
@@ -46,7 +48,7 @@ MyGame.systems.ParticleEffect = function (spec) {
 
     function update(elapsedTime) {
         let removeMe = [];
-        console.log(effectRunTime, effectLifetime);
+        // console.log(effectRunTime, effectLifetime);
         if(effectRunTime >= effectLifetime){
             expireEffect();
         }
