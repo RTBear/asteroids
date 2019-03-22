@@ -1,4 +1,4 @@
-MyGame.render.ParticleSystem = function (system, graphics, imageSrc) {
+MyGame.render.ParticleEffect = function (particles, graphics, imageSrc) {
     let image = new Image();
     let isReady = false;
 
@@ -9,8 +9,8 @@ MyGame.render.ParticleSystem = function (system, graphics, imageSrc) {
 
     function render() {
         if (isReady) {
-            Object.getOwnPropertyNames(system.particles).forEach(function (value) {
-                let particle = system.particles[value];
+            Object.getOwnPropertyNames(particles).forEach(function (value) {
+                let particle = particles[value];
                 graphics.drawTexture(image, particle.center, particle.rotation, particle.size);
             });
         }

@@ -12,24 +12,9 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
     let myKeyboard = input.Keyboard();
 
-    let particlesFire = systems.ParticleSystem({
-        center: { x: 300, y: 300 },
-        size: { mean: 15, stdev: 5 },
-        speed: { mean: 65, stdev: 35 },
-        lifetime: { mean: 4, stdev: 1 }
-    });
-    // let particlesSmoke = systems.ParticleSystem({
-    //     center: { x: 300, y: 300 },
-    //     size: { mean: 12, stdev: 3 },
-    //     speed: { mean: 65, stdev: 35 },
-    //     lifetime: { mean: 4, stdev: 1}
-    // });
-    let fireRenderer = renderer.ParticleSystem(particlesFire, graphics,
-        'assets/particle-effects/fire.png');
-    // let smokeRenderer = renderer.ParticleSystem(particlesSmoke, graphics, 
-    //     'assets/smoke-2.png');
+    let particleSystem = systems.ParticleSystem();
 
-    let gameModel = new objects.GameModel();
+    let gameModel = new objects.GameModel(particleSystem);
 
     function gameOver() {
         console.log("GAME OVER");
@@ -96,20 +81,19 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     }
 
     function update(elapsedTime) {
-        particlesFire.update(elapsedTime);
+        // particlesFire.update(elapsedTime);
         // particlesSmoke.update(elapsedTime);
         // player.update(elapsedTime);
 
         gameModel.update(elapsedTime);
+        particleSystem.update(elapsedTime);
     }
 
     function render() {
         graphics.clear();
 
-        // fireRenderer.render();
-        // smokeRenderer.render();
-
         gameModel.render();
+        particleSystem.render();
         updateHUD();
     }
 
@@ -119,16 +103,17 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     }
 
     function gameLoop(time) {
-        if (!gameModel.gameOver) {
-            let elapsedTime = (time - lastTimeStamp);
-            update(elapsedTime);
-            processInput(elapsedTime);
+        var elapsedTime = (time - lastTimeStamp);
+        update(elapsedTime);
 
-            render();
-            requestAnimationFrame(gameLoop);
+        if (!gameModel.gameOver) {
+            processInput(elapsedTime);
         } else {
             gameOver();
         }
+
+        render();
+        requestAnimationFrame(gameLoop);
         lastTimeStamp = time;
     };
 

@@ -30,7 +30,7 @@
         </div>
     </div>
     <script>
-        const RENDER_COLLIDERS = true;
+        const RENDER_COLLIDERS = false;
         const RENDER_COLLIDERS_PLAYER = false;
         const RENDER_COLLIDERS_ASTEROIDS = false;
         const RENDER_COLLIDERS_PROJECTILES = false;
@@ -41,20 +41,14 @@
         var GAME_SIZE_Y = window.innerHeight;
         document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
         document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
-
         console.log(GAME_SIZE_X, GAME_SIZE_Y)
-        // document.querySelector('#game-canvas').style.width = GAME_SIZE_X;
-        // document.querySelector('#game-canvas').style.height = GAME_SIZE_Y;
+
         const ALMOST_ZERO = 0.000001; //gameplay constants
         const ASTEROID_SIZES = {
             SMALL: 25,
             MEDIUM: 100,
             LARGE: 150
         }
-        // const EDGE_BUFFER = ASTEROID_SIZES.LARGE / 2;
-        // const EDGE_BUFFER_MAX = GAME_SIZE_X + EDGE_BUFFER;//TODO: depricate
-        // const EDGE_BUFFER_MIN = 0-EDGE_BUFFER;//TODO: depricate
-
 
         let MyGame = {
             systems: {},
@@ -67,8 +61,9 @@
     <script src="scripts/random.js"></script>
     <script src="scripts/progressbar.js"></script>
     <script src="scripts/render/graphics.js"></script>
-    <script src="scripts/render/particle-system.js"></script>
+    <script src="scripts/render/particle-effect.js"></script>
     <script src="scripts/render/space-object.js"></script>
+    <script src="scripts/system/particle-effect.js"></script>
     <script src="scripts/system/particle-system.js"></script>
     <script src="scripts/objects/space-object.js"></script>
     <script src="scripts/objects/ship.js"></script>

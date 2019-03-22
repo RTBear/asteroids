@@ -3,13 +3,16 @@
 // Creates a GameModel object, with functions for managing state.
 //
 // --------------------------------------------------------------
-MyGame.objects.GameModel = function () {
+MyGame.objects.GameModel = function (particleSystem) {
     'use strict';
     this.nextID = 0;
     this.entities = [];//array of SpaceStates //TODO
+    console.log(particleSystem);
+    this.particleSystem = particleSystem;
+
     this.player = new MyGame.objects.PlayerShip({
         hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        hyperspaceCooldown: 0.02 * 1000,
+        hyperspaceCooldown: 0.5 * 1000,
         // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
         // hyperspaceCooldown: 5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
@@ -31,7 +34,7 @@ MyGame.objects.GameModel = function () {
         shipType: 'player'
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
-    this.remainingLives = 0; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
+    this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
 
     this.ufos = []; //array of Ufo objects
     this.asteroids = []; //array of Asteroid objects
@@ -60,7 +63,7 @@ MyGame.objects.GameModel = function () {
 
     let spawnPointDensity = 20;
 
-    this.calculateSpawnPoints = function(){
+    this.calculateSpawnPoints = function () {
         this.spawnPoints = [];
         //calculate spawn points
         for (let x = GAME_SIZE_X / spawnPointDensity; x <= GAME_SIZE_X - GAME_SIZE_X / spawnPointDensity; x += GAME_SIZE_X / spawnPointDensity) {
@@ -186,36 +189,36 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
     this.ufos.push(ufo);
 }
 
-MyGame.objects.GameModel.prototype.randomObstacleSpawn = function(){
+MyGame.objects.GameModel.prototype.randomObstacleSpawn = function () {
     let sides = {
-            top: {
-                zone: 'top',
-                x: Random.nextRange(0, GAME_SIZE_X),
-                y: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer, GAME_SIZE_Y),
-                rotation: Random.nextRange(225, 315) * Math.PI / 180,
-            },
-            right: {
-                zone: 'right',
-                x: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_X),
-                y: Random.nextRange(0, GAME_SIZE_Y),
-                rotation: Random.nextRange(135, 225) * Math.PI / 180,
-            },
-            bottom: {
-                zone: 'bottom',
-                x: Random.nextRange(0, GAME_SIZE_X),
-                y: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_Y),
-                rotation: Random.nextRange(45, 135) * Math.PI / 180,
-            },
-            left: {
-                zone: 'left',
-                x: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer),
-                y: Random.nextRange(0, GAME_SIZE_Y),
-                rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
-            }
+        top: {
+            zone: 'top',
+            x: Random.nextRange(0, GAME_SIZE_X),
+            y: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer, GAME_SIZE_Y),
+            rotation: Random.nextRange(225, 315) * Math.PI / 180,
+        },
+        right: {
+            zone: 'right',
+            x: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_X),
+            y: Random.nextRange(0, GAME_SIZE_Y),
+            rotation: Random.nextRange(135, 225) * Math.PI / 180,
+        },
+        bottom: {
+            zone: 'bottom',
+            x: Random.nextRange(0, GAME_SIZE_X),
+            y: Random.nextRange(this.player.center.x + this.playerSpawnBuffer, GAME_SIZE_Y),
+            rotation: Random.nextRange(45, 135) * Math.PI / 180,
+        },
+        left: {
+            zone: 'left',
+            x: Random.nextRange(0, this.player.center.x - this.playerSpawnBuffer),
+            y: Random.nextRange(0, GAME_SIZE_Y),
+            rotation: (405 - Random.nextRange(0, 45)) * Math.PI / 180,
         }
+    }
 
-        var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
-        return spawnPoint;
+    var spawnPoint = this.choose([sides.top, sides.right, sides.bottom, sides.left]);
+    return spawnPoint;
 }
 
 MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
@@ -257,18 +260,18 @@ MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
             newSize = ASTEROID_SIZES.MEDIUM;
             newPieces = 3;
         }
-        //TODO: display particle effects for breaking asteroid
+        this.particleSystem.createExplosion(asteroid.center.x, asteroid.center.y, asteroid.size.x, './assets/particle-effects/rubble.png');
         asteroid.remove();//expire asteroid so it gets destroyed on next update
         this.breakAsteroid({ x: x, y: y }, newSize, newPieces); //create sub asteroids
     } else {
-        //TODO: display particle effects for destroying asteroid
+        this.particleSystem.createExplosion(asteroid.center.x, asteroid.center.y, asteroid.size.x, './assets/particle-effects/rubble.png');
         asteroid.remove();//expire asteroid so it gets destroyed on next update
     }
 
 }
 
 MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
-    //TODO: display particle effects for destroyed ufo
+    this.particleSystem.createExplosion(ufo.center.x, ufo.center.y, ufo.size.x, './assets/particle-effects/ship-piece.png');
     ufo.remove();//expire asteroid so it gets destroyed on next update
 }
 
@@ -284,6 +287,7 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
 
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
     console.log('DEAD :(', this.player.center)
+    this.particleSystem.createExplosion(this.player.center.x, this.player.center.y, this.player.size.x, './assets/particle-effects/ship-piece.png');
     if (this.remainingLives <= 0) {
         this.remainingLives = 0;//make sure it does not keep going negative until overflow
         this.gameOver = true;
@@ -419,88 +423,89 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: fa
 ////////////////////////////////////////////////////////////                                                   
 
 MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
+    if (!this.gameOver) {
+        this.player.update(elapsedTime);
+        //add player projectiles to game
+        Array.prototype.push.apply(this.projectiles, this.player.projectiles);
+        this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
-    this.player.update(elapsedTime);
-    //add player projectiles to game
-    Array.prototype.push.apply(this.projectiles, this.player.projectiles);
-    this.player.projectiles = [];//memory leak? do i need to null out the array first?
+        if (this.player.requestNewLocation == true) {
+            this.player.requestNewLocation = false;
 
-    if (this.player.requestNewLocation == true) {
-        this.player.requestNewLocation = false;
+            this.player.respawn(this.computeSafeLocation());
+        }
 
-        this.player.respawn(this.computeSafeLocation());
-    }
+        //clean up any expired projectiles
+        let projectiles_copy = this.projectiles;
+        this.projectiles.forEach(function (projectile, index) {
+            if (projectile != null) {
+                if (projectile.expired == true) {
+                    projectiles_copy[index] = null;//destroy out of bounds asteroids
+                } else {
+                    projectile.update(elapsedTime);
+                }
+            }
+        })
+        this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
-    //clean up any expired projectiles
-    let projectiles_copy = this.projectiles;
-    this.projectiles.forEach(function (projectile, index) {
-        if (projectile != null) {
-            if (projectile.expired == true) {
-                projectiles_copy[index] = null;//destroy out of bounds asteroids
-            } else {
-                projectile.update(elapsedTime);
+        //check for NEXT LEVEL
+        if (this.asteroids.length == 0 && this.UFOsLeftToSpawn <= 0 && this.ufos.length == 0) {//if level cleared
+            this.level++;
+
+            this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset ufo spawn timer
+            this.UFOsLeftToSpawn = this.level;//set number of UFOs for next level
+
+            this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
+            for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
+                this.generateAsteroid(ASTEROID_SIZES.LARGE);
             }
         }
-    })
-    this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
-    //check for NEXT LEVEL
-    if (this.asteroids.length == 0 && this.UFOsLeftToSpawn <= 0 && this.ufos.length == 0) {//if level cleared
-        this.level++;
-
-        this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset ufo spawn timer
-        this.UFOsLeftToSpawn = this.level;//set number of UFOs for next level
-
-        this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
-        for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
-            this.generateAsteroid(ASTEROID_SIZES.LARGE);
-        }
-    }
-
-    //clean up any expired asteroids
-    let asteroids_copy = this.asteroids;
-    this.asteroids.forEach(function (asteroid, index) {
-        if (asteroid != null) {
-            if (asteroid.expired == true) {
-                asteroids_copy[index] = null;//destroy expired asteroids
-            } else {
-                asteroid.update(elapsedTime);
+        //clean up any expired asteroids
+        let asteroids_copy = this.asteroids;
+        this.asteroids.forEach(function (asteroid, index) {
+            if (asteroid != null) {
+                if (asteroid.expired == true) {
+                    asteroids_copy[index] = null;//destroy expired asteroids
+                } else {
+                    asteroid.update(elapsedTime);
+                }
             }
-        }
-    })
-    this.asteroids = this.asteroids.filter(el => el != null);//clean up null entries caused by destroying asteroids
+        })
+        this.asteroids = this.asteroids.filter(el => el != null);//clean up null entries caused by destroying asteroids
 
-    if (this.currentUfoSpawnTimer > 0) {
-        this.currentUfoSpawnTimer -= elapsedTime;
-    } else {
-        if (this.UFOsLeftToSpawn > 0) {
-            this.generateUFO();
-            this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset timer for next ufo
-            this.UFOsLeftToSpawn--;
+        if (this.currentUfoSpawnTimer > 0) {
+            this.currentUfoSpawnTimer -= elapsedTime;
         } else {
-            this.UFOsLeftToSpawn = 0;
-        }
-    }
-
-    //clean up any expired asteroids
-    let ufos_copy = this.ufos;
-    let allUFOprojectiles = [];
-    this.ufos.forEach(function (ufo, index) {
-        if (ufo != null) {
-            if (ufo.expired == true) {
-                ufos_copy[index] = null;//destroy expired ufos
+            if (this.UFOsLeftToSpawn > 0) {
+                this.generateUFO();
+                this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset timer for next ufo
+                this.UFOsLeftToSpawn--;
             } else {
-                ufo.update(elapsedTime);
-                //add ufo projectiles to game
-                Array.prototype.push.apply(allUFOprojectiles, ufo.projectiles);
-                ufo.projectiles = [];//memory leak? do i need to null out the array first?
+                this.UFOsLeftToSpawn = 0;
             }
         }
-    })
-    Array.prototype.push.apply(this.projectiles, allUFOprojectiles);
-    this.ufos = this.ufos.filter(el => el != null);//clean up null entries caused by destroying ufos
 
-    this.checkCollisions();
+        //clean up any expired asteroids
+        let ufos_copy = this.ufos;
+        let allUFOprojectiles = [];
+        this.ufos.forEach(function (ufo, index) {
+            if (ufo != null) {
+                if (ufo.expired == true) {
+                    ufos_copy[index] = null;//destroy expired ufos
+                } else {
+                    ufo.update(elapsedTime);
+                    //add ufo projectiles to game
+                    Array.prototype.push.apply(allUFOprojectiles, ufo.projectiles);
+                    ufo.projectiles = [];//memory leak? do i need to null out the array first?
+                }
+            }
+        })
+        Array.prototype.push.apply(this.projectiles, allUFOprojectiles);
+        this.ufos = this.ufos.filter(el => el != null);//clean up null entries caused by destroying ufos
+
+        this.checkCollisions();
+    }
 }
 
 MyGame.objects.GameModel.prototype.checkCollisions = function () {
@@ -741,7 +746,9 @@ MyGame.objects.GameModel.prototype.render = function () {
 
     }
 
-    this.player.renderer.render();//render player
+    if (!this.gameOver) {
+        this.player.renderer.render();//render player
+    }
 
     if (RENDER_SPAWN_POINTS) {
 

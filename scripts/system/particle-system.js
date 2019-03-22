@@ -1,53 +1,62 @@
-MyGame.systems.ParticleSystem = function (spec) {
-    let nextName = 1;
-    let particles = {};
+// Creates a new ParticleSystem object 
 
-    function create() {
-        let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
-        let p = {
-            center: { x: spec.center.x, y: spec.center.y },
-            size: { x: size, y: size },
-            direction: Random.nextCircleVector(),
-            speed: Random.nextGaussian(spec.speed.mean, spec.speed.stdev), // pixels per second
-            rotation: 0,
-            lifetime: Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdev), // seconds
-            alive: 0
-        };
+MyGame.systems.ParticleSystem = function () {
+    let effects = [];//array containing current particle effects
 
-        return p;
+    function createExplosion(x, y, size, imgSrc) {
+        let effect = new MyGame.systems.ParticleEffect({
+            center: {
+                x: x,
+                y: y
+            },
+            size: {
+                mean: size / 30 + 1,
+                stdev: size / 50 + 1
+            },
+            speed: {
+                // mean: 3 * size,
+                // stdev: 1 * size
+                mean: 300,
+                stdev: 100
+            },
+            effectLifetime: {
+                mean: 0.3,
+                stdev: 0.05
+            },
+            particleLifetime: {
+                mean: 1 * size / 20,
+                stdev: 0.01 * size / 20
+            },
+            imagSrc: imgSrc,//path to image for effect
+        });
+        effects.push(effect);
     }
 
     function update(elapsedTime) {
-        let removeMe = [];
-
-        elapsedTime = elapsedTime / 1000;
-
-        for (let particle = 0; particle < 2; particle++) {
-            particles[nextName++] = create();
-        }
-
-        Object.getOwnPropertyNames(particles).forEach(value => {
-            let particle = particles[value];
-
-            particle.alive += elapsedTime;
-            particle.center.x += (elapsedTime * particle.speed * particle.direction.x);
-            particle.center.y += (elapsedTime * particle.speed * particle.direction.y);
-
-            particle.rotation += particle.speed / 500;
-
-            if (particle.alive > particle.lifetime) {
-                removeMe.push(value);
+        // console.log(effects[0])
+        for (index in effects) {
+            let effect = effects[index];//syntactical sugar
+            if (effect.expired) {
+                effects[index] = null;//remove effect
+            } else {
+                effect.update(elapsedTime);
             }
-        });
+        }
+        effects = effects.filter(el => el != null);//clean up null entries
 
-        for (let particle = 0; particle < removeMe.length; particle++) {
-            delete particles[removeMe[particle]];
+    }
+
+    function render() {
+        for (effect of effects) {
+            effect.render();
         }
     }
 
     let api = {
         update: update,
-        get particles() { return particles; }
+        createExplosion: createExplosion,
+        render: render,
+        get effects() { return effects; }
     };
 
     return api;
