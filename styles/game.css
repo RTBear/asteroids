@@ -64,3 +64,23 @@ div#hyperspace-cooldown:before {
     bottom: 18px;
     font-size: .7em;
 }
+
+#menu {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#menu .menu-option {
+    display: block;
+    margin: 5px auto;
+}
+
+#menu div {
+    display: none;
+}
+
+#menu #main {
+    display: block;
+}

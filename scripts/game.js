@@ -91,6 +91,8 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
         gameModel.update(elapsedTime);
         particleSystem.update(elapsedTime);
+
+        console.log(menu.currentState.name);
     }
 
     function render() {
@@ -100,31 +102,35 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         gameModel.render();
         updateHUD();
     }
-
+    
     function processGameInput(elapsedTime) {
         // console.log('gameKeyboard')
         gameKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
-
+    
     function processMenuInput(elapsedTime) {
         // console.log('menuKeyboard')
         menuKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
-
+    
     function gameLoop(time) {
         var elapsedTime = (time - lastTimeStamp);
-        update(elapsedTime);
+        // if(menu.currentState.name == )
+        menu.showMenu();
         processMenuInput(elapsedTime);
-        
-        if (!gameModel.gameOver) {
-            processGameInput(elapsedTime);
-        } else {
-            gameOver();
+        if(menu.currentState.name != 'pause'){
+            update(elapsedTime);
+            
+            if (!gameModel.gameOver) {
+                processGameInput(elapsedTime);
+            } else {
+                gameOver();
+            }
+            
+            render();
         }
-
-        render();
         requestAnimationFrame(gameLoop);
         lastTimeStamp = time;
     };
@@ -134,6 +140,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     menuKeyboard.register('ArrowDown', menu.menuDown, false);
     menuKeyboard.register('ArrowLeft', menu.menuLeft, false);
     menuKeyboard.register('Escape', menu.menuEsc, false);
+    menuKeyboard.register('Enter', menu.menuEnter, false);
 
     //register game inputs
     gameKeyboard.register('ArrowUp', objects.Ship.prototype.accelerate.bind(gameModel.player));
@@ -154,6 +161,12 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
         gameModel.calculateSpawnPoints();
     });
+
+    document.querySelector('#newgame-btn').addEventListener('click',()=>{menu.addStateByName('play')});
+    document.querySelector('#highscores-btn').addEventListener('click',()=>{menu.addStateByName('highscores')});
+    document.querySelector('#help-btn').addEventListener('click',()=>{menu.addStateByName('help')});
+    document.querySelector('#credits-btn').addEventListener('click',()=>{menu.addStateByName('credits')});
+
 
     requestAnimationFrame(gameLoop);
 }(MyGame.systems, MyGame.render, MyGame.graphics, MyGame.objects, MyGame.input));

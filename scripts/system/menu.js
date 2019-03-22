@@ -13,33 +13,50 @@
 
 MyGame.systems.Menu = function () {
     'use strict';
-    let menuStack = []; //can use an array like a stack for this
-
+    
+    let menuElement = document.querySelector('#menu');
     // just html objects
     let menuStates = {
         main: {
+            name: 'main',
             element: document.querySelector('#menu #main'),
         },//maybe have the value be the selector for the html element for that state
         newgame: {
+            name: 'newgame',
             element: document.querySelector('#menu #newgame'),
-            pause: {
-                element: document.querySelector('#menu #newgame #pause'),
-            },
-            play: {
-                element: document.querySelector('#menu #newgame #play'),
-            },
-            gameover: {
-                element: document.querySelector('#menu #newgame #gameover'),
-            },
         },
-        highscores: false,
-        help: false,
-        credits: false,
-        // settings: false,
+        pause: {
+            name: 'pause',
+            element: document.querySelector('#menu #pause'),
+        },
+        play: {
+            name: 'play',
+            element: document.querySelector('#menu #play'),
+        },
+        gameover: {
+            name: 'gameover',
+            element: document.querySelector('#menu #gameover'),
+        },
+        highscores: {
+            name: 'highscores',
+            element: document.querySelector('#menu #highscores'),
+        },
+        help: {
+            name: 'help',
+            element: document.querySelector('#menu #help'),
+        },
+        credits: {
+            name: 'credits',
+            element: document.querySelector('#menu #credits'),
+        },
+        // settings: ,
     }
-
+    
     let currentState = menuStates.main;
-
+    let previousState = menuStates.main;
+    let currentSelection = menuStates.newgame;
+    let menuStack = [menuStates.main]; //can use an array like a stack for this
+    
     function menuUp() {
         console.log('menuUp');
     }
@@ -59,9 +76,64 @@ MyGame.systems.Menu = function () {
         console.log('menuLeft');
     }
 
-    function menuEsc() {
+    function menuEnter() {
 
-        console.log('menuEsc');//go back a level. or if during play, toggle pause screen
+        console.log('menuEnter');
+    }
+
+    function menuEsc() {
+        console.log('menuEsc',currentState.name);//go back a level. or if during play, toggle pause screen
+        if (currentState.name == 'play'){//if playing
+            console.log('pause');
+            previousState = currentState;
+            currentState = menuStates.pause;
+        } else if (currentState.name == 'pause'){//if paused
+            console.log('play');
+            previousState = currentState;
+            currentState = menuStates.play;
+        } else if (currentState.name != 'main') {//if not on main menu
+            console.log('go back menu level');
+            // hideElement(menuStack[menuStack.length - 1].element);
+            menuStack.pop();//remove last item
+            previousState = currentState;
+            currentState = menuStack[menuStack.length - 1];
+        }
+    }
+
+    function hideElement(el){
+        el.setAttribute('style','display:none;');
+    }
+
+    function showElement(el){
+        el.setAttribute('style','display:block;');
+    }
+
+    function addState(newState){
+        previousState = currentState;
+        menuStack.push(newState);
+        currentState = newState;
+    }
+
+    function addStateByName(newStateName){
+        previousState = currentState;
+        menuStack.push(menuStates[newStateName]);
+        currentState = menuStates[newStateName];
+    }
+
+    function showMenu(){
+        if(previousState.name != currentState.name){//if there has been a change in menu state
+            // console.log('p',previousState.name)
+            // console.log('c',currentState.name)
+            if(currentState.name == 'play'){
+                hideElement(menuElement);
+            }else{
+                showElement(menuElement);
+            }
+            hideElement(previousState.element);
+            showElement(currentState.element);
+
+            previousState = currentState;//wait until state is changed
+        }
     }
 
     let api = {
@@ -70,7 +142,12 @@ MyGame.systems.Menu = function () {
         menuDown: menuDown,
         menuLeft: menuLeft,
         menuEsc: menuEsc,
+        menuEnter: menuEnter,
+        addState: addState,
+        addStateByName: addStateByName,
+        showMenu: showMenu,
         get currentState() { return currentState; },
+        get menuStates() { return currentState; },
     };
 
     return api;
@@ -119,7 +196,7 @@ MyGame.systems.Menu = function () {
 
 //     this.currentState = this.menuStates.main;
 
-    
+
 //     // let api = {
 //     //     menuUp: menuUp,
 //     //     menuRight: menuRight,
@@ -127,7 +204,7 @@ MyGame.systems.Menu = function () {
 //     //     menuLeft: menuLeft,
 //     //     get currentState() { return currentState; },
 //     // };
-    
+
 //     // return api;
 // };
 
