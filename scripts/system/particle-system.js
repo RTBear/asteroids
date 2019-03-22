@@ -20,8 +20,8 @@ MyGame.systems.ParticleSystem = function () {
                 stdev: 100
             },
             effectLifetime: {
-                mean: 0.2,
-                stdev: 0.05
+                mean: 0.2 * size / 50 + 0.05,
+                stdev: 0.05 * size / 50
             },
             particleLifetime: {
                 mean: 1 * size / 20,

@@ -115,7 +115,7 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
         let nextGunToFire = this.nextGunToFire();
 
         let angle = this.get_rotation() * 180 / Math.PI - 90;//convert to degrees 
-        this.particleSystem.createExhaust(guns[nextGunToFire].x, guns[nextGunToFire].y, this.size.x, './assets/particle-effects/ship-piece.png', {min: angle - 45, max: angle + 45});
+        this.particleSystem.createExhaust(guns[nextGunToFire].x, guns[nextGunToFire].y, this.size.x, './assets/particle-effects/blue.png', {min: angle - 45, max: angle + 45});
 
         let laser = new MyGame.objects.Projectile({
             owner: this, //reference to owner ship
@@ -147,10 +147,12 @@ MyGame.objects.PlayerShip.prototype.respawn = function (location) {
     //reset weapon
     this.projectiles = [];//array containing lasers
     this.lastGunFired = 3;
+    this.particleSystem.createExplosion(this.center.x, this.center.y, this.size.x * 1.5, './assets/particle-effects/yellow.png');
 }
 
 MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
     if (this.hyperspaceStatus == 0) {
+        this.particleSystem.createExplosion(this.center.x, this.center.y, this.size.x, './assets/particle-effects/yellow.png');
         this.hyperspaceStatus = this.hyperspaceCooldown; //reset cooldown
         this.requestNewLocation = true;
     }

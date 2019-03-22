@@ -12,7 +12,7 @@ MyGame.objects.GameModel = function (particleSystem) {
 
     this.player = new MyGame.objects.PlayerShip({
         hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        hyperspaceCooldown: 0.5 * 1000,
+        hyperspaceCooldown: 0.05 * 1000,
         // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
         // hyperspaceCooldown: 5 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
@@ -279,7 +279,7 @@ MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
 
 MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
     //tell projectile it was collided with
-    //TODO: particle effects here
+    this.particleSystem.createExplosion(projectile.center.x, projectile.center.y, projectile.size.x, './assets/particle-effects/ship-piece.png');
     projectile.remove();
 }
 
@@ -432,9 +432,11 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.player.projectiles = [];//memory leak? do i need to null out the array first?
 
         if (this.player.requestNewLocation == true) {
+            
             this.player.requestNewLocation = false;
-
+            
             this.player.respawn(this.computeSafeLocation());
+            this.particleSystem.createExplosion(this.player.center.x, this.player.center.y, this.player.size.x * 3, './assets/particle-effects/yellow.png');
         }
 
         //clean up any expired projectiles
