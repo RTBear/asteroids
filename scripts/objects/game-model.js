@@ -48,7 +48,9 @@ MyGame.objects.GameModel = function () {
     this.maxUFOSpeedModifier = 10;
     this.minUFOSpeed = 0.01;
     this.UFO_KILL_SCORE = 10;
-    this.UFO_PROJECTILE_KILL_SCORE = 3;
+    this.UFO_PROJECTILE_KILL_SCORE = 0;
+    this.OnlyDestoryersNowPoint = 40000;
+    this.UFOsLeftToSpawn = this.level;
 
     // this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
     // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
@@ -153,6 +155,9 @@ MyGame.objects.GameModel.prototype.generateAsteroid = function (size, center = n
 }
 
 MyGame.objects.GameModel.prototype.generateUFO = function (center) {
+    let probabilityOfDestroyer = this.score / this.OnlyDestoryersNowPoint; //probability of getting destroyer increases
+    probabilityOfDestroyer = (probabilityOfDestroyer > 1) ? 1 : probabilityOfDestroyer; //upper bound of probability at 1
+    probabilityOfDestroyer = (probabilityOfDestroyer < 0.5) ? 0.5 : probabilityOfDestroyer; //lower bound of probability at .5
     spec = {
         rotationRate: Random.nextRange(1, 15) / 100,
         rotationDirection: Random.nextRange(-1, 2),
@@ -229,7 +234,6 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
     spec.momentum.y = spec.orientation.y * Random.nextRange(this.minUFOSpeed, spec.maxSpeed * this.maxUFOSpeedModifier) / spec.size.x;//larger asteroids will move slower
 
     let ufo = new MyGame.objects.UFO(spec)
-    console.log(ufo);
     this.ufos.push(ufo);
 }
 
@@ -454,9 +458,13 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     })
     this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
 
-    //check for increment level
-    if (this.asteroids.length == 0) {//if level cleared
+    //check for NEXT LEVEL
+    if (this.asteroids.length == 0 && this.UFOsLeftToSpawn <= 0 && this.ufos.length == 0) {//if level cleared
         this.level++;
+
+        this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset ufo spawn timer
+        this.UFOsLeftToSpawn = this.level;//set number of UFOs for next level
+
         this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
         for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
             // this.generateAsteroid(ASTEROID_SIZES.LARGE);//TODO: make sure do not spawn on other asteroids or player
@@ -479,8 +487,13 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
     if (this.currentUfoSpawnTimer > 0) {
         this.currentUfoSpawnTimer -= elapsedTime;
     } else {
-        this.generateUFO();
-        this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
+        if(this.UFOsLeftToSpawn > 0){
+            this.generateUFO();
+            this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);//reset timer for next ufo
+            this.UFOsLeftToSpawn--;
+        }else{
+            this.UFOsLeftToSpawn = 0;
+        }
     }
 
     //clean up any expired asteroids

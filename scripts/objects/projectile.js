@@ -62,6 +62,15 @@ MyGame.objects.Projectile.prototype.accelerate = function (elapsedTime) {
     })
 }
 
+MyGame.objects.Projectile.prototype.set_center = function (center) { //override set_center for projectiles so they do not wrap around screen
+    this.center.x = center.x; 
+    this.center.y = center.y; 
+
+    if (this.center.x > GAME_SIZE_X || this.center.x < 0 || this.center.y > GAME_SIZE_Y || this.center.y < 0){
+        this.remove();
+    }
+}
+
 MyGame.objects.Projectile.prototype.update = function (elapsedTime) {
     MyGame.objects.SpaceObject.prototype.update.call(this, elapsedTime);
 

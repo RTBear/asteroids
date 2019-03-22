@@ -76,9 +76,9 @@ MyGame.objects.UFO.prototype.rotate = function (elapsedTime) {
 }
 
 MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
-    console.log('ufo fire');
+    // console.log('ufo fire');
     if (this.canFire()) {
-        console.log('ufo can fire');
+        // console.log('ufo can fire');
 
         MyGame.objects.Ship.prototype.fire.call(this, elapsedTime);
 
@@ -101,7 +101,7 @@ MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
             momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
             graphics: this.graphics//reference to graphics renderer (MyGame.graphics)
         });
-        console.log(laser)
+        // console.log(laser)
         this.projectiles.push(laser);
 
     }
