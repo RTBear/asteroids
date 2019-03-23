@@ -5,7 +5,7 @@
 // --------------------------------------------------------------
 MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     'use strict';
-    this.nextID = 0;
+    this.nextID = 1;
     // this.entities = [];//array of SpaceStates //TODO
     console.log(particleSystem);
     this.particleSystem = particleSystem;
@@ -31,7 +31,7 @@ MyGame.objects.GameModel = function (particleSystem, audioSystem) {
         maxSpeed: 3, //float //max magnitude of momentum
         momentum: { x: 0, y: 0 },
         graphics: MyGame.graphics,
-        id: this.nextID++,
+        id: 0,
         shipType: 'player',
         particleSystem: this.particleSystem,
         audioSystem: this.audioSystem,
@@ -801,7 +801,7 @@ MyGame.objects.GameModel.prototype.newGame = function () {
     this.clearGame();
     this.gameStarted = true;
 
-    this.nextID = 0;
+    this.nextID = 1;
     this.score = 0;
     this.level = 0;
     this.remainingLives = 2; 

@@ -104,6 +104,7 @@ MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
         });
         // console.log(laser)
         this.projectiles.push(laser);
+        this.audioSystem.missle();
 
     }
 }
