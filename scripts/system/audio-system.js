@@ -26,10 +26,14 @@ MyGame.systems.AudioSystem = function () {
             MyGame.sounds.background = loadSound('assets/sounds/space-atmosphere.mp3');
             MyGame.sounds.thrust = loadSound('assets/sounds/thrust-pd.mp3');
         }
-    
+
+        
         console.log('audio initializing...');
-    
+        
         loadAudio();
+        MyGame.sounds.thrust.loop = true;
+        MyGame.sounds.background.loop = true;
+        MyGame.sounds.background.play();//"autoplay" background music
     }
 
     function playSound(whichSound) {
