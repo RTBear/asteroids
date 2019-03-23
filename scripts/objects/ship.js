@@ -45,6 +45,8 @@ MyGame.objects.Ship.prototype.vectorMagnitude = function (v = { x: 0, y: 0 }) {
 }
 
 MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
+    // this.audioSystem.playSlowSound('thrust');
+
     if(this.exhaustLocation_left){//fire left particles
         this.computeExhaustLocations();
         //particle effects
@@ -61,10 +63,6 @@ MyGame.objects.Ship.prototype.accelerate = function (elapsedTime) {
     let current_momentum = this.get_momentum();
     let orientation = this.get_orientation();
     let max_speed = this.get_maxSpeed();
-
-    //if magnitude of momentum > max_speed
-    //  adjust it to hav magnitude such that mag(momentum) == max_speed
-
 
     let new_momentum_x, new_momentum_y;
 

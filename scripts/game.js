@@ -149,13 +149,32 @@ MyGame.main = (function (systems, graphics, objects, input) {
     gameKeyboard.register('ArrowRight', objects.Ship.prototype.turnRight.bind(gameModel.player));
     gameKeyboard.register('ArrowLeft', objects.Ship.prototype.turnLeft.bind(gameModel.player));
 
+
+    ///WARNING: very gross way of doing audio for thrust of player ship... not sure how to do this with the audio system though
+    document.onkeydown = checkStartThrust;
+    function checkStartThrust(e) {
+        if (!gameModel.gameOver && menu.currentState.name == 'play') {
+            e = e || window.event;
+            if (e.keyCode == '38' || e.keyCode == '87') {//38 is up arrow and 87 is 'w' key
+                MyGame.sounds.thrust.play();
+            }
+        }
+    }
+    document.onkeyup = checkEndThrust;
+    function checkEndThrust(e) {
+            e = e || window.event;
+            if (e.keyCode == '38' || e.keyCode == '87') {//38 is up arrow and 87 is 'w' key
+                MyGame.sounds.thrust.pause();
+            }
+    }
+
+
     gameKeyboard.register('w', objects.Ship.prototype.accelerate.bind(gameModel.player));
     gameKeyboard.register('d', objects.Ship.prototype.turnRight.bind(gameModel.player));
     gameKeyboard.register('a', objects.Ship.prototype.turnLeft.bind(gameModel.player));
 
     gameKeyboard.register(' ', objects.PlayerShip.prototype.fire.bind(gameModel.player));
     gameKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
-
 
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;
@@ -178,7 +197,6 @@ MyGame.main = (function (systems, graphics, objects, input) {
             gameModel.clearGame();
         });
     });
-
 
     document.querySelector('#highscores-btn').addEventListener('click', () => { menu.addStateByName('highscores'); });
     document.querySelector('#help-btn').addEventListener('click', () => { menu.addStateByName('help'); });

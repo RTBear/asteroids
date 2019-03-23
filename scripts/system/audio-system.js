@@ -35,9 +35,9 @@ MyGame.systems.AudioSystem = function () {
     function playSound(whichSound) {
         var audio = document.createElement("audio");
         audio.src = MyGame.sounds[whichSound].src;
-        audio.addEventListener("ended", function () {
-            document.removeChild(this);
-        }, false);
+        // audio.addEventListener("ended", function () {
+        //     document.removeChild(audio);
+        // }, false);
         audio.play(); 
     }
 
