@@ -26,7 +26,6 @@ MyGame.main = (function (systems, graphics, objects, input) {
     let highScores = JSON.parse(localStorage.getItem('highscores')) || [];
     handleHighScores(null);
 
-    console.log('hs-----', highScores)
     let handledGameOver = false;
 
     function gameOver() {
@@ -47,7 +46,6 @@ MyGame.main = (function (systems, graphics, objects, input) {
                 highScores.splice(maxHighScoreCount);//remove extra entries
             }
 
-            console.log('hs', highScores);
         }
 
         let highscoresDiv = document.querySelector('#highscores-output');
