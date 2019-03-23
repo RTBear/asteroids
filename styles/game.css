@@ -129,3 +129,12 @@ div#hyperspace-cooldown:before {
     display: block;
     font-size: 5em;
 }
+
+#highscores-output li{
+    text-align: center;
+    font-size: 2em;
+}
+
+#highscores-output{
+    margin: 0 100px;
+}

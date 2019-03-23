@@ -22,9 +22,40 @@ MyGame.main = (function (systems, graphics, objects, input) {
 
     let menu = systems.Menu();
 
+    let highScores = []; //TODO: read from a cookie
+
+    let handledGameOver = false;
+
     function gameOver() {
-        document.querySelector('#menu #gameover .score').innerHTML = '' + gameModel.score;
-        menu.showGameOver();
+        if(!handledGameOver){
+            handledGameOver = true;
+            document.querySelector('#menu #gameover .score').innerHTML = '' + gameModel.score;
+            menu.showGameOver();
+            handleHighScores(gameModel.score);
+        }
+    }
+
+    function handleHighScores(newScore){
+        let maxHighScoreCount = 5;
+        highScores.push(newScore);
+        highScores.sort((a, b) => b - a );//descending numeric sort (the default sort is alphabetical)
+        if(highScores.length > maxHighScoreCount){
+            highScores.splice(maxHighScoreCount);//remove extra entries
+        }
+
+        console.log('hs',highScores);
+        
+        let highscoresDiv = document.querySelector('#highscores-output');
+        while (highscoresDiv.firstChild) {
+            highscoresDiv.removeChild(highscoresDiv.firstChild);
+        }
+        for (let score of highScores) {
+            let s = document.createElement('li');
+            s.appendChild(document.createTextNode('' + score));
+            document.querySelector('#highscores-output').appendChild(s);
+        }
+
+        //TODO: when I'm done update the highscores cookie
     }
 
     function updateHUD() {
@@ -119,6 +150,7 @@ MyGame.main = (function (systems, graphics, objects, input) {
 
             if (!gameModel.gameOver && menu.currentState.name == 'play') {
                 processGameInput(elapsedTime);
+                handledGameOver = false;
             } else if (gameModel.gameOver) {
                 gameOver();
             }
