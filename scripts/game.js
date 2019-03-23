@@ -23,7 +23,8 @@ MyGame.main = (function (systems, graphics, objects, input) {
     let menu = systems.Menu();
 
     function gameOver() {
-        console.log("GAME OVER");
+        // console.log("GAME OVER");
+        menu.showGameOver();
     }
 
     function updateHUD() {

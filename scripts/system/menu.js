@@ -132,6 +132,18 @@ MyGame.systems.Menu = function () {
         menuStack.push(currentState);
     }
 
+    function showGameOver(){
+        if(currentState.name != 'gameover'){
+            menuStack = [];
+            menuStack.push(menuStates.main);
+            menuStack.push(menuStates.gameover);
+
+            previousState = menuStates.main;
+            currentState = menuStates.gameover;
+        }
+        showMenu();
+    }
+
     function showMenu() {
         if (previousState.name != currentState.name) {//if there has been a change in menu state
             // console.log('p', previousState.name)
@@ -168,6 +180,7 @@ MyGame.systems.Menu = function () {
         showMenu: showMenu,
         goBackOneState: goBackOneState,
         goToMainMenu: goToMainMenu,
+        showGameOver: showGameOver,
         get currentState() { return currentState; },
         get menuStates() { return currentState; },
     };

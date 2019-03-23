@@ -59,11 +59,9 @@ MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     this.OnlyDestoryersNowPoint = 40000;
     this.UFOsLeftToSpawn = this.level;
 
-    // this.ufoSpawnTimeRange = { min: 15 * 1000, max: 45 * 1000 }; //range in milliseconds
-    // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
-
-    this.ufoSpawnTimeRange = { min: .0001 * 1000, max: .0002 * 1000 }; //range in milliseconds
+    this.ufoSpawnTimeRange = { min: 1 * 1000, max: 15 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
+
 
     let spawnPointDensity = 20;
 
@@ -774,6 +772,7 @@ MyGame.objects.GameModel.prototype.render = function () {
 
 MyGame.objects.GameModel.prototype.clearGame = function () {
     this.gameStarted = false;
+    this.gameOver = false;
 
     //clear projectiles
     for (let i = 0; i < this.projectiles.length; i++) {
@@ -808,5 +807,6 @@ MyGame.objects.GameModel.prototype.newGame = function () {
     this.score = 0;
     this.level = 0;
     this.remainingLives = 2; 
+    this.UFOsLeftToSpawn = this.level;
 
 }
