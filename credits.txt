@@ -1,4 +1,14 @@
-Asteroids : Cayden Franklin - https://opengameart.org/content/pixel-art-2d-asteroid-pack
+Asteroids       :   Cayden Franklin - https://opengameart.org/content/pixel-art-2d-asteroid-pack
+
+Balls           :   fsvieira - https://opengameart.org/content/vector-svg-balls-with-5-colors
+
+Ships/Lasers    :   CruzR - https://opengameart.org/content/space-starter-kit
+
+Background Music:   Alexandr Zhelanov - https://opengameart.org/content/space-atmospere
+
+Explosions      :   dklon - https://opengameart.org/content/boom-pack-1
+
+Laser/Missle    :   dklon - https://opengameart.org/content/laser-fire
 
 
 remember to cred progressbar.js
