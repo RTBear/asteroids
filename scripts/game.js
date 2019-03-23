@@ -22,12 +22,15 @@ MyGame.main = (function (systems, graphics, objects, input) {
 
     let menu = systems.Menu();
 
-    let highScores = []; //TODO: read from a cookie
 
+    let highScores = JSON.parse(localStorage.getItem('highscores')) || [];
+    handleHighScores(null);
+
+    console.log('hs-----', highScores)
     let handledGameOver = false;
 
     function gameOver() {
-        if(!handledGameOver){
+        if (!handledGameOver) {
             handledGameOver = true;
             document.querySelector('#menu #gameover .score').innerHTML = '' + gameModel.score;
             menu.showGameOver();
@@ -35,16 +38,18 @@ MyGame.main = (function (systems, graphics, objects, input) {
         }
     }
 
-    function handleHighScores(newScore){
-        let maxHighScoreCount = 5;
-        highScores.push(newScore);
-        highScores.sort((a, b) => b - a );//descending numeric sort (the default sort is alphabetical)
-        if(highScores.length > maxHighScoreCount){
-            highScores.splice(maxHighScoreCount);//remove extra entries
+    function handleHighScores(newScore) {
+        if (newScore != null) {
+            let maxHighScoreCount = 5;
+            highScores.push(newScore);
+            highScores.sort((a, b) => b - a);//descending numeric sort (the default sort is alphabetical)
+            if (highScores.length > maxHighScoreCount) {
+                highScores.splice(maxHighScoreCount);//remove extra entries
+            }
+
+            console.log('hs', highScores);
         }
 
-        console.log('hs',highScores);
-        
         let highscoresDiv = document.querySelector('#highscores-output');
         while (highscoresDiv.firstChild) {
             highscoresDiv.removeChild(highscoresDiv.firstChild);
@@ -55,7 +60,7 @@ MyGame.main = (function (systems, graphics, objects, input) {
             document.querySelector('#highscores-output').appendChild(s);
         }
 
-        //TODO: when I'm done update the highscores cookie
+        localStorage['highscores'] = JSON.stringify(highScores);//persist
     }
 
     function updateHUD() {
@@ -186,10 +191,10 @@ MyGame.main = (function (systems, graphics, objects, input) {
     }
     document.onkeyup = checkEndThrust;
     function checkEndThrust(e) {
-            e = e || window.event;
-            if (e.keyCode == '38' || e.keyCode == '87') {//38 is up arrow and 87 is 'w' key
-                MyGame.sounds.thrust.pause();
-            }
+        e = e || window.event;
+        if (e.keyCode == '38' || e.keyCode == '87') {//38 is up arrow and 87 is 'w' key
+            MyGame.sounds.thrust.pause();
+        }
     }
 
 

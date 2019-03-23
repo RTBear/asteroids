@@ -55,31 +55,32 @@ MyGame.systems.Menu = function () {
 
     let currentState = menuStates.main;
     let previousState = menuStates.main;
-    let currentSelection = menuStates.newgame;
+    // let currentSelection = document.querySelector('#menu #main .newgame-btn');
     let menuStack = [menuStates.main]; //can use an array like a stack for this
 
     function menuUp() {
-        console.log('menuUp');
+        // console.log('menuUp');
     }
 
     function menuRight() {
-        console.log('menuRight');
+        // console.log('menuRight');
 
     }
 
     function menuDown() {
-        console.log('menuDown');
+        // console.log('menuDown');
 
     }
 
     function menuLeft() {
 
-        console.log('menuLeft');
+        // console.log('menuLeft');
     }
 
     function menuEnter() {
-
-        console.log('menuEnter');
+        // console.log(currentSelection);
+        // currentSelection.click();
+        // console.log('menuEnter');
     }
 
     function menuEsc() {
