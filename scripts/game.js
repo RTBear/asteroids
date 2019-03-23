@@ -59,6 +59,13 @@ MyGame.main = (function (systems, graphics, objects, input) {
         }
 
         localStorage['highscores'] = JSON.stringify(highScores);//persist
+
+        //update high score on HUD
+        let highscoreDiv = document.querySelector('#hud #highscore-display');
+        while (highscoreDiv.firstChild) {
+            highscoreDiv.removeChild(highscoreDiv.firstChild);
+        }
+        document.querySelector('#hud #highscore-display').appendChild(document.createTextNode('' + (highScores[0] || '0' )))
     }
 
     function updateHUD() {

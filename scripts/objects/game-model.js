@@ -54,7 +54,10 @@ MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     this.OnlyDestoryersNowPoint = 40000;
     this.UFOsLeftToSpawn = this.level;
 
-    this.ufoSpawnTimeRange = { min: 1 * 1000, max: 15 * 1000 }; //range in milliseconds
+    // this.ufoSpawnTimeRange = { min: 1 * 1000, max: 15 * 1000 }; //range in milliseconds
+    // this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
+
+    this.ufoSpawnTimeRange = { min: .01 * 1000, max: .15 * 1000 }; //range in milliseconds
     this.currentUfoSpawnTimer = Random.nextRange(this.ufoSpawnTimeRange.min, this.ufoSpawnTimeRange.max);
 
 
@@ -136,6 +139,16 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
     let probabilityOfDestroyer = this.score / this.OnlyDestoryersNowPoint; //probability of getting destroyer increases
     probabilityOfDestroyer = (probabilityOfDestroyer > 1) ? 1 : probabilityOfDestroyer; //upper bound of probability at 1
     probabilityOfDestroyer = (probabilityOfDestroyer < 0.5) ? 0.5 : probabilityOfDestroyer; //lower bound of probability at .5
+    let possibleUFOTypes = [];
+    for(let i = 0; i < probabilityOfDestroyer*100; i++){
+        //probability of destroyers (out of 100 ships)
+        possibleUFOTypes.push(true);
+    }
+    for(let i = 0; i < 100 - probabilityOfDestroyer*100; i++){
+        //possibilty of non-destroyers (out of 100 ships)
+        possibleUFOTypes.push(false);
+    }
+
     spec = {
         rotationRate: Random.nextRange(1, 15) / 100,
         rotationDirection: Random.nextRange(-1, 2),
@@ -150,7 +163,11 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         shipType: 'ufo',
         particleSystem: this.particleSystem,
         audioSystem: this.audioSystem,
+        isDestroyer: this.choose(possibleUFOTypes),
     }
+
+    console.log(spec.isDestroyer);
+
     asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
     spec.imageSrc = this.choose(asteroidImageOptions);
 
