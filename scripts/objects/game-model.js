@@ -278,7 +278,7 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
 }
 
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
-    console.log('DEAD :(', this.player.center)
+    // console.log('DEAD :(', this.player.center)
     this.particleSystem.createExplosion(this.player.center.x, this.player.center.y, this.player.size.x, './assets/particle-effects/ship-piece.png');
     this.audioSystem.playSound('boomPlayer');
     if (this.remainingLives <= 0) {
@@ -487,7 +487,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
     //NAIVE COLLISION CHECK FOR PLAYER AND UFOS
     for (let ufo in this.ufos) {
         if (this.collides(this.player, this.ufos[ufo])) {
-            console.log('ufo keeled you', this.ufos[ufo])
+            // console.log('ufo keeled you', this.ufos[ufo])
             this.losePlayerLife();
             return;
         }
@@ -495,7 +495,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
     //NAIVE COLLISION CHECK FOR PLAYER AND ASTEROIDS
     for (let ast in this.asteroids) {
         if (this.collides(this.player, this.asteroids[ast])) {
-            console.log('asteroid keeled you', this.asteroids[ast])
+            // console.log('asteroid keeled you', this.asteroids[ast])
             this.losePlayerLife();
             return;
         }
@@ -732,7 +732,6 @@ MyGame.objects.GameModel.prototype.render = function () {
         if (RENDER_SPAWN_POINTS) {
 
             this.spawnPoints.forEach(function (sp) {//render spawn points
-                // console.log(asteroid)
                 MyGame.graphics.drawCircle({
                     center: {
                         x: sp.x,
