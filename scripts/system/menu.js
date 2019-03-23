@@ -15,6 +15,7 @@ MyGame.systems.Menu = function () {
     'use strict';
 
     let menuElement = document.querySelector('#menu');
+    let hudElement = document.querySelector('#hud');
     // just html objects
     let menuStates = {
         main: {
@@ -135,8 +136,13 @@ MyGame.systems.Menu = function () {
             // console.log('p',previousState.name)
             // console.log('c',currentState.name)
             if (currentState.name == 'play') {
+                showElement(hudElement);
                 hideElement(menuElement);
+            } else if (currentState.name == 'pause'){
+                showElement(hudElement);
+                showElement(menuElement);
             } else {
+                hideElement(hudElement);
                 showElement(menuElement);
             }
             hideElement(previousState.element);

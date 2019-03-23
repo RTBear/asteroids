@@ -40,6 +40,7 @@ body
 }
 
 #hud {
+    display: none;/*this is only until the game starts*/
     position: absolute;
     bottom: 0;
     right: 0;
