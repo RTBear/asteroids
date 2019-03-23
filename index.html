@@ -25,90 +25,105 @@
             <h2 class="menu-title">New Game</h2>
         </div>
         <div id="pause">
+            <span class="esc-helper-text">
+                Press &lt;ESC&gt; to Play
+            </span>
             <h2 class="menu-title">Pause</h2>
             <button class="newgame-btn menu-option">New Game</button>
             <button class="mainmenu-btn menu-option">Return to Main Menu</button>
         </div>
         <div id="play" style='display:none !important;'>
-                <!-- <h2 class="menu-title">Play</h2> -->
-            </div>
-            <div id="gameover">
-                <h2 class="menu-title">Game Over</h2>
-                <button class="newgame-btn menu-option">New Game</button>
-                <button class="mainmenu-btn menu-option">Return to Main Menu</button>
-                
-                <h3 class="text-center">Score</h3>
-                <span class="text-center score"></span>
-            </div>
-            <div id="highscores">
-                <h2 class="menu-title">Highscores</h2>
-                <ol id="highscores-output"></ol>
-            </div>
-            <div id="help">
-                <h2 class="menu-title">Help</h2>
-                <div class="menu-text">
-                    <p><strong>Controls:</strong></p>
-                    <ul>
-                        <li><strong>Apply Thrust:</strong> Up Arrow Key / W</li>
-                        <li><strong>Turn Left:</strong> Left Arrow Key / A</li>
-                        <li><strong>Turn Right:</strong> Right Arrow Key / D</li>
-                        <li><strong>Fire Weapon:</strong> Space Bar</li>
-                        <li><strong>Use HyperSpace:</strong> Z (Teleport to Safety)</li>
-                    </ul>
-                </div>
-            </div>
-            <div id="credits">
-                <h2 class="menu-title">Credits</h2>
+            <!-- <h2 class="menu-title">Play</h2> -->
+        </div>
+        <div id="gameover">
+            <span class="esc-helper-text">
+                Press &lt;ESC&gt; to Return to Main Menu
+            </span>
+            <h2 class="menu-title">Game Over</h2>
+            <button class="newgame-btn menu-option">New Game</button>
+            <button class="mainmenu-btn menu-option">Return to Main Menu</button>
+
+            <h3 class="text-center">Score</h3>
+            <span class="text-center score"></span>
+        </div>
+        <div id="highscores">
+            <span class="esc-helper-text">
+                Press &lt;ESC&gt; to Return to Main Menu
+            </span>
+            <h2 class="menu-title">Highscores</h2>
+            <ol id="highscores-output"></ol>
+        </div>
+        <div id="help">
+            <span class="esc-helper-text">
+                Press &lt;ESC&gt; to Return to Main Menu
+            </span>
+            <h2 class="menu-title">Help</h2>
+            <div class="menu-text">
+                <p><strong>Controls:</strong></p>
+                <ul>
+                    <li><strong>Apply Thrust:</strong> Up Arrow Key / W</li>
+                    <li><strong>Turn Left:</strong> Left Arrow Key / A</li>
+                    <li><strong>Turn Right:</strong> Right Arrow Key / D</li>
+                    <li><strong>Fire Weapon:</strong> Space Bar</li>
+                    <li><strong>Use HyperSpace:</strong> Z (Teleport to Safety)</li>
+                </ul>
             </div>
         </div>
-        <div id="hud">
-            <div id="current-score">
-                <p><strong>Score:</strong> 0</p>
-                <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
-            </div>
-            <div id="high-score">
-                <p><strong>High Score:</strong> 999999</p>
-            </div>
-            <div id="lives-remaining">
-                
-            </div>
-            <div id="current-level">
-                
-            </div>
-            <div id="hyperspace-cooldown">
-                
-            </div>
+        <div id="credits">
+            <span class="esc-helper-text">
+                Press &lt;ESC&gt; to Return to Main Menu
+            </span>
+            <h2 class="menu-title">Credits</h2>
         </div>
-        <script>
-            const RENDER_COLLIDERS = false;
-            const RENDER_COLLIDERS_PLAYER = false;
-            const RENDER_COLLIDERS_ASTEROIDS = false;
-            const RENDER_COLLIDERS_PROJECTILES = false;
-            const RENDER_COLLIDERS_UFOS = false;
-            const RENDER_SPAWN_POINTS = false;
-            
-            var GAME_SIZE_X = window.innerWidth;
-            var GAME_SIZE_Y = window.innerHeight;
-            document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
-            document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
-            console.log(GAME_SIZE_X, GAME_SIZE_Y)
-            
-            const ALMOST_ZERO = 0.000001; //gameplay constants
-            const ASTEROID_SIZES = {
-                SMALL: 30,
-                MEDIUM: 100,
-                LARGE: 150
-            }
-            
-            let MyGame = {
-                systems: {},
-                render: {},
-                graphics: {},
-                objects: {},
-                input: {},
-                sounds: {},
-            };
-            </script>
+    </div>
+    <div id="hud">
+        <div id="current-score">
+            <p><strong>Score:</strong> 0</p>
+            <!-- possible score scheme: 1pt per sec plus 10 per asteroid hit + 50 per lame UFO + 100 for enemy fighter jet -->
+        </div>
+        <div id="high-score">
+            <p><strong>High Score:</strong> 999999</p>
+        </div>
+        <div id="lives-remaining">
+
+        </div>
+        <div id="current-level">
+
+        </div>
+        <div id="hyperspace-cooldown">
+
+        </div>
+    </div>
+    <script>
+        const RENDER_COLLIDERS = false;
+        const RENDER_COLLIDERS_PLAYER = false;
+        const RENDER_COLLIDERS_ASTEROIDS = false;
+        const RENDER_COLLIDERS_PROJECTILES = false;
+        const RENDER_COLLIDERS_UFOS = false;
+        const RENDER_SPAWN_POINTS = false;
+
+        var GAME_SIZE_X = window.innerWidth;
+        var GAME_SIZE_Y = window.innerHeight;
+        document.querySelector('#game-canvas').setAttribute('width', GAME_SIZE_X);
+        document.querySelector('#game-canvas').setAttribute('height', GAME_SIZE_Y);
+        console.log(GAME_SIZE_X, GAME_SIZE_Y)
+
+        const ALMOST_ZERO = 0.000001; //gameplay constants
+        const ASTEROID_SIZES = {
+            SMALL: 30,
+            MEDIUM: 100,
+            LARGE: 150
+        }
+
+        let MyGame = {
+            systems: {},
+            render: {},
+            graphics: {},
+            objects: {},
+            input: {},
+            sounds: {},
+        };
+    </script>
     <script src="scripts/random.js"></script>
     <script src="scripts/progressbar.js"></script>
     <script src="scripts/render/graphics.js"></script>
