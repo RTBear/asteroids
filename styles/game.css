@@ -22,15 +22,15 @@ body
     margin: 10px auto;
 }
 
-#game-title {
+.menu-title {
     /* text-align: center; */
     /* margin: 0 auto; */
     font-size: 5em;
-    position: absolute;
-    left: 50%;
+    /* position: absolute; */
+    /* left: 50%; */
     /* right: 0; */
-    transform: translateX(-50%);
-    color: rgba(255,255,255,0.5)
+    /* transform: translateX(-50%); */
+    color: rgba(255,255,255,1)
 
 }
 
