@@ -23,7 +23,7 @@ MyGame.main = (function (systems, graphics, objects, input) {
     let menu = systems.Menu();
 
     function gameOver() {
-        // console.log("GAME OVER");
+        document.querySelector('#menu #gameover .score').innerHTML = '' + gameModel.score;
         menu.showGameOver();
     }
 
@@ -88,14 +88,8 @@ MyGame.main = (function (systems, graphics, objects, input) {
     }
 
     function update(elapsedTime) {
-        // particlesFire.update(elapsedTime);
-        // particlesSmoke.update(elapsedTime);
-        // player.update(elapsedTime);
-
         gameModel.update(elapsedTime);
         particleSystem.update(elapsedTime);
-
-        // console.log(menu.currentState.name);
     }
 
     function render() {
@@ -107,20 +101,17 @@ MyGame.main = (function (systems, graphics, objects, input) {
     }
 
     function processGameInput(elapsedTime) {
-        // console.log('gameKeyboard')
         gameKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
 
     function processMenuInput(elapsedTime) {
-        // console.log('menuKeyboard')
         menuKeyboard.update(elapsedTime);
         // myMouse.update(elapsedTime);
     }
 
     function gameLoop(time) {
         var elapsedTime = (time - lastTimeStamp);
-        // if(menu.currentState.name == )
         menu.showMenu();
         processMenuInput(elapsedTime);
         if (menu.currentState.name != 'pause') {

@@ -39,6 +39,10 @@ body
     margin: -20px 0 0 0;
 }
 
+.text-center {
+    text-align: center !important;
+}
+
 #hud {
     display: none;/*this is only until the game starts*/
     position: absolute;
@@ -115,4 +119,13 @@ div#hyperspace-cooldown:before {
     padding: 15px 15px 25px 15px;
     border: 2px solid rgba(200,200,200,.5);
     border-radius: 15px;
+}
+
+#gameover h3 {
+    font-size: 3em;
+}
+
+#gameover .score {
+    display: block;
+    font-size: 5em;
 }
