@@ -17,6 +17,14 @@ MyGame.systems.AudioSystem = function () {
 
             MyGame.sounds.laser = loadSound('assets/sounds/laser.wav');
             MyGame.sounds.missle = loadSound('assets/sounds/missle.wav');
+            MyGame.sounds.boomMissle = loadSound('assets/sounds/boom2.wav');
+            MyGame.sounds.boomLaser = loadSound('assets/sounds/distant-explosion-pd.wav');
+            MyGame.sounds.boomAsteroid = loadSound('assets/sounds/boom3.wav');
+            MyGame.sounds.boomUFO = loadSound('assets/sounds/boom4.wav');
+            MyGame.sounds.warp = loadSound('assets/sounds/boom7.wav');
+            MyGame.sounds.boomPlayer = loadSound('assets/sounds/boom9.wav');
+            MyGame.sounds.background = loadSound('assets/sounds/space-atmosphere.mp3');
+            MyGame.sounds.thrust = loadSound('assets/sounds/thrust-pd.mp3');
         }
     
         console.log('audio initializing...');
@@ -33,19 +41,9 @@ MyGame.systems.AudioSystem = function () {
         audio.play(); 
     }
 
-    function laser(){
-        playSound('laser');
-    }
-
-    function missle(){
-        playSound('missle');
-    }
-
     let api = {
         initialize: initialize,
         playSound: playSound,
-        laser: laser,
-        missle: missle,
         // get effects() { return effects; }
     };
 

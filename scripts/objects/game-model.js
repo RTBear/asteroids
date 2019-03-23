@@ -12,10 +12,10 @@ MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     this.audioSystem = audioSystem;
 
     this.player = new MyGame.objects.PlayerShip({
-        hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        hyperspaceCooldown: 0.05 * 1000,
-        // hyperspaceStatus: 5 * 1000, //float // how long until it can be used (ms)
-        // hyperspaceCooldown: 5 * 1000,
+        // hyperspaceStatus: 0, //float // how long until it can be used (ms)
+        // hyperspaceCooldown: 0.05 * 1000,
+        hyperspaceStatus: 3 * 1000, //float // how long until it can be used (ms)
+        hyperspaceCooldown: 3 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
         fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
@@ -256,6 +256,7 @@ MyGame.objects.GameModel.prototype.breakAsteroid = function (center, newSize, pi
 }
 
 MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
+    this.audioSystem.playSound('boomAsteroid');
     let x = asteroid.center.x;
     let y = asteroid.center.y;
     //tell asteroid it was collided with
@@ -274,17 +275,18 @@ MyGame.objects.GameModel.prototype.notifyAsteroid = function (asteroid) {
         this.particleSystem.createExplosion(asteroid.center.x, asteroid.center.y, asteroid.size.x, './assets/particle-effects/rubble.png');
         asteroid.remove();//expire asteroid so it gets destroyed on next update
     }
-
 }
 
 MyGame.objects.GameModel.prototype.notifyUFO = function (ufo) {
     this.particleSystem.createExplosion(ufo.center.x, ufo.center.y, ufo.size.x, './assets/particle-effects/ship-piece.png');
+    this.audioSystem.playSound('boomUFO');
     ufo.remove();//expire asteroid so it gets destroyed on next update
 }
 
 MyGame.objects.GameModel.prototype.notifyProjectile = function (projectile) {
     //tell projectile it was collided with
     this.particleSystem.createExplosion(projectile.center.x, projectile.center.y, projectile.size.x, './assets/particle-effects/ship-piece.png');
+    this.audioSystem.playSound('boomMissle');
     projectile.remove();
 }
 
@@ -295,6 +297,7 @@ MyGame.objects.GameModel.prototype.incrementScore = function (howMuch) {
 MyGame.objects.GameModel.prototype.losePlayerLife = function () {
     console.log('DEAD :(', this.player.center)
     this.particleSystem.createExplosion(this.player.center.x, this.player.center.y, this.player.size.x, './assets/particle-effects/ship-piece.png');
+    this.audioSystem.playSound('boomPlayer');
     if (this.remainingLives <= 0) {
         this.remainingLives = 0;//make sure it does not keep going negative until overflow
         this.gameOver = true;

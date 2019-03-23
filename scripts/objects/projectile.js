@@ -92,6 +92,7 @@ MyGame.objects.Projectile.prototype.update = function (elapsedTime) {
     this.range -= elapsedTime;
     //check if expired
     if (this.range <= 0){
+        this.owner.audioSystem.playSound('boomLaser');
         this.remove();
         return;
     }

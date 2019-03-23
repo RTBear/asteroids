@@ -134,12 +134,14 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
         });
 
         this.projectiles.push(laser);
-        this.audioSystem.laser();
+        this.audioSystem.playSound('laser');
 
     }
 }
 
 MyGame.objects.PlayerShip.prototype.reset = function () {
+    this.audioSystem.playSound('warp');
+
     this.respawn({
         x: GAME_SIZE_X / 2,
         y: GAME_SIZE_Y / 2,
@@ -160,7 +162,9 @@ MyGame.objects.PlayerShip.prototype.respawn = function (location) {
 }
 
 MyGame.objects.PlayerShip.prototype.hyperspace = function (elapsedTime) {
+    
     if (this.hyperspaceStatus == 0) {
+        this.audioSystem.playSound('warp');
         this.particleSystem.createExplosion(this.center.x, this.center.y, this.size.x, './assets/particle-effects/yellow.png');
         this.hyperspaceStatus = this.hyperspaceCooldown; //reset cooldown
         this.requestNewLocation = true;

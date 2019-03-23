@@ -157,9 +157,6 @@ MyGame.main = (function (systems, graphics, objects, input) {
     gameKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
 
 
-    // gameKeyboard.register('c', objects.GameModel.prototype.clearGame.bind(gameModel));
-    gameKeyboard.register('n', audioSystem.laser, false);
-
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;
         GAME_SIZE_Y = window.innerHeight;
