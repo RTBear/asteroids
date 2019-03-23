@@ -92,7 +92,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
         gameModel.update(elapsedTime);
         particleSystem.update(elapsedTime);
 
-        console.log(menu.currentState.name);
+        // console.log(menu.currentState.name);
     }
 
     function render() {
@@ -155,8 +155,8 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     gameKeyboard.register('z', objects.PlayerShip.prototype.hyperspace.bind(gameModel.player));
 
 
-    gameKeyboard.register('c', objects.GameModel.prototype.clearGame.bind(gameModel));
-    gameKeyboard.register('n', objects.GameModel.prototype.newGame.bind(gameModel));
+    // gameKeyboard.register('c', objects.GameModel.prototype.clearGame.bind(gameModel));
+    // gameKeyboard.register('n', objects.GameModel.prototype.newGame.bind(gameModel));
 
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;

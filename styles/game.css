@@ -85,3 +85,11 @@ div#hyperspace-cooldown:before {
 #menu #main {
     display: block;
 }
+
+#menu .menu-text {
+    display: block;
+    background-color: rgba(50,50,50,.5);
+    padding: 15px 15px 25px 15px;
+    border: 2px solid rgba(200,200,200,.5);
+    border-radius: 15px;
+}

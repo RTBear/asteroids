@@ -83,17 +83,17 @@ MyGame.systems.Menu = function () {
     }
 
     function menuEsc() {
-        console.log('menuEsc', currentState.name);//go back a level. or if during play, toggle pause screen
+        // console.log('menuEsc', currentState.name);//go back a level. or if during play, toggle pause screen
         if (currentState.name == 'play') {//if playing
-            console.log('pause');
+            // console.log('pause');
             previousState = currentState;
             currentState = menuStates.pause;
         } else if (currentState.name == 'pause') {//if paused
-            console.log('play');
+            // console.log('play');
             previousState = currentState;
             currentState = menuStates.play;
         } else if (currentState.name != 'main') {//if not on main menu
-            console.log('go back menu level');
+            // console.log('go back menu level');
             // hideElement(menuStack[menuStack.length - 1].element);
             goBackOneState();
         }
@@ -129,16 +129,17 @@ MyGame.systems.Menu = function () {
         menuStack = [];
         previousState = currentState;
         currentState = menuStates.main;
+        menuStack.push(currentState);
     }
 
     function showMenu() {
         if (previousState.name != currentState.name) {//if there has been a change in menu state
-            // console.log('p',previousState.name)
-            // console.log('c',currentState.name)
+            // console.log('p', previousState.name)
+            // console.log('c', currentState.name)
             if (currentState.name == 'play') {
                 showElement(hudElement);
                 hideElement(menuElement);
-            } else if (currentState.name == 'pause'){
+            } else if (currentState.name == 'pause') {
                 showElement(hudElement);
                 showElement(menuElement);
             } else {
