@@ -3,7 +3,7 @@
 // This provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function (systems, renderer, graphics, objects, input) {
+MyGame.main = (function (systems, graphics, objects, input) {
     'use strict';
 
     console.log('game initializing...');
@@ -13,11 +13,13 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
     let gameKeyboard = input.Keyboard();
     let menuKeyboard = input.Keyboard();
 
+    let audioSystem = systems.AudioSystem();
+    audioSystem.initialize();
+
     let particleSystem = systems.ParticleSystem();
 
-    let gameModel = new objects.GameModel(particleSystem);
+    let gameModel = new objects.GameModel(particleSystem, audioSystem);
 
-    // let menu = new systems.Menu();
     let menu = systems.Menu();
 
     function gameOver() {
@@ -156,7 +158,7 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
 
     // gameKeyboard.register('c', objects.GameModel.prototype.clearGame.bind(gameModel));
-    // gameKeyboard.register('n', objects.GameModel.prototype.newGame.bind(gameModel));
+    gameKeyboard.register('n', audioSystem.laser, false);
 
     window.addEventListener('resize', evt => {
         GAME_SIZE_X = window.innerWidth;
@@ -187,4 +189,4 @@ MyGame.main = (function (systems, renderer, graphics, objects, input) {
 
 
     requestAnimationFrame(gameLoop);
-}(MyGame.systems, MyGame.render, MyGame.graphics, MyGame.objects, MyGame.input));
+}(MyGame.systems, MyGame.graphics, MyGame.objects, MyGame.input));

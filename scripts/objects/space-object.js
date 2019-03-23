@@ -55,6 +55,7 @@ MyGame.objects.SpaceObject = function (spec) {
         size: this.size,
     });
     this.particleSystem = spec.particleSystem;
+    this.audioSystem = spec.audioSystem;
 
     this.expired = false;
 

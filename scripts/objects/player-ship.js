@@ -134,6 +134,7 @@ MyGame.objects.PlayerShip.prototype.fire = function (elapsedTime) {
         });
 
         this.projectiles.push(laser);
+        this.audioSystem.laser();
 
     }
 }

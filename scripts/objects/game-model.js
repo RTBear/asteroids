@@ -3,12 +3,13 @@
 // Creates a GameModel object, with functions for managing state.
 //
 // --------------------------------------------------------------
-MyGame.objects.GameModel = function (particleSystem) {
+MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     'use strict';
     this.nextID = 0;
     // this.entities = [];//array of SpaceStates //TODO
     console.log(particleSystem);
     this.particleSystem = particleSystem;
+    this.audioSystem = audioSystem;
 
     this.player = new MyGame.objects.PlayerShip({
         hyperspaceStatus: 0, //float // how long until it can be used (ms)
@@ -33,6 +34,7 @@ MyGame.objects.GameModel = function (particleSystem) {
         id: this.nextID++,
         shipType: 'player',
         particleSystem: this.particleSystem,
+        audioSystem: this.audioSystem,
     });
     this.playerSpawnBuffer = ASTEROID_SIZES.LARGE / 2 + this.player.collider[0][0].circumference / 2;
     this.remainingLives = 2; //int // lives remaining (2 would mean 3 total lives; 1 + 2 remaining)
@@ -154,6 +156,7 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         id: this.nextID++,
         shipType: 'ufo',
         particleSystem: this.particleSystem,
+        audioSystem: this.audioSystem,
     }
     asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
     spec.imageSrc = this.choose(asteroidImageOptions);

@@ -136,6 +136,9 @@ MyGame.systems.Menu = function () {
         if (previousState.name != currentState.name) {//if there has been a change in menu state
             // console.log('p', previousState.name)
             // console.log('c', currentState.name)
+            if (currentState.name == 'main'){
+                document.querySelector('#main .newgame-btn').focus();
+            }
             if (currentState.name == 'play') {
                 showElement(hudElement);
                 hideElement(menuElement);
