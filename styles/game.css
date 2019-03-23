@@ -23,7 +23,7 @@ body
 }
 
 .menu-title {
-    /* text-align: center; */
+    text-align: center;
     /* margin: 0 auto; */
     font-size: 5em;
     /* position: absolute; */
@@ -73,9 +73,32 @@ div#hyperspace-cooldown:before {
     transform: translateX(-50%);
 }
 
+#menu .menu-option.menu-option-primary {
+    border: 2px solid rgb(244, 244, 66);
+    background-color: rgba(244, 244, 66, 0.75);
+}
+
+#menu .menu-option.menu-option-primary:hover {
+    border: 2px solid rgb(244, 244, 66);
+    background-color: rgba(206, 206, 41, 1);
+}
+
+
 #menu .menu-option {
     display: block;
     margin: 5px auto;
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 2em;
+    font-family: monospace;
+    background-color: rgba(50,50,50,.75);
+    border: 2px solid rgba(200,200,200,.75);
+    color: #fff;
+}
+
+#menu .menu-option:hover {
+    background-color: rgba(50,50,50,1);
 }
 
 #menu div {
