@@ -6,20 +6,15 @@
 MyGame.objects.GameModel = function (particleSystem, audioSystem) {
     'use strict';
     this.nextID = 1;
-    // this.entities = [];//array of SpaceStates //TODO
-    console.log(particleSystem);
     this.particleSystem = particleSystem;
     this.audioSystem = audioSystem;
 
     this.player = new MyGame.objects.PlayerShip({
-        // hyperspaceStatus: 0, //float // how long until it can be used (ms)
-        // hyperspaceCooldown: 0.05 * 1000,
         hyperspaceStatus: 3 * 1000, //float // how long until it can be used (ms)
         hyperspaceCooldown: 3 * 1000,
         accelerationRate: 10 / 1000, //float //speed per time
         turnRate: 0.5, //float //max rotations per time
         fireRate: 0.2 * 1000, //float //max shots per time ///////// RECOMMENDED FOR PRODUCTION
-        // fireRate: 0.005 * 1000, //float //max shots per time ///////// JUST FOR FUN
         projectileSpeed: 15,
         projectileAccelerationRate: 1,
 
@@ -226,24 +221,14 @@ MyGame.objects.GameModel.prototype.randomObstacleSpawn = function () {
     return spawnPoint;
 }
 
-MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {
-    // console.log('asters', this.asteroids);
-
-    // console.log('obj1', obj1);
-    // console.log('obj2', obj2);
+MyGame.objects.GameModel.prototype.collides = function (obj1, obj2) {//TODO: use heirarchical collision detection for more accurate detection
 
     //check for collisions
-    // for(let i = 0; i < obj1.length)
     if (!obj1.collider[0][0].overlapsCircle(obj2.collider[0][0].center.x, obj2.collider[0][0].center.y, obj2.collider[0][0].circumference)) {
         //outer bounding boxes do not collide; fail early
         return false;
     }
-    // let x2 = obj2.center.x;
-    // let y2 = obj2.center.y;
-    // let c2 = obj2.center.circum
-
-    //return boolean
-    return true;//nothing collides for now
+    return true;//otherwise collides
 }
 
 MyGame.objects.GameModel.prototype.breakAsteroid = function (center, newSize, pieces = 3) {
@@ -301,13 +286,13 @@ MyGame.objects.GameModel.prototype.losePlayerLife = function () {
         this.gameOver = true;
     } else {
         this.remainingLives -= 1;
-        // this.projectiles = [];//should I do this?
 
         this.player.respawn(this.computeSafeLocation());
     }
 }
 
 MyGame.objects.GameModel.prototype.computeDistance = function (x1, y1, x2, y2) {
+    //check distance directly and distance if wrapping around edge of screen
     //keep x keep y
     var d0 = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
@@ -339,8 +324,6 @@ MyGame.objects.GameModel.prototype.computeDistance = function (x1, y1, x2, y2) {
     var d3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
 
     let dist = Math.min(d0, d1, d2, d3);
-    // console.log(x1, y1, x2, y2)
-    // console.log(this.playerSpawnBuffer, d0, d1, d2, d3, ':::', dist);
     return dist;
 }
 
@@ -374,7 +357,6 @@ MyGame.objects.GameModel.prototype.computeSafestSpawnPoint = function () {//TODO
             maxDistance = distForSP;
         }
     }
-    console.log(safestPoint);
     return safestPoint;
 }
 
@@ -383,14 +365,9 @@ MyGame.objects.GameModel.prototype.computeSafeLocation = function () {//TODO: fa
     let possibleLocation_x = Random.nextRange(0 + this.player.size.x, GAME_SIZE_X - this.player.size.x);
     let possibleLocation_y = Random.nextRange(0 + this.player.size.y, GAME_SIZE_Y - this.player.size.y);
 
-    // console.log(possibleLocation_x, possibleLocation_y, '&&&&&&&&')
-
     this.possibleLocation_x = possibleLocation_x;
     this.possibleLocation_y = possibleLocation_y;
 
-    // this.render();
-
-    // console.log('pl', possibleLocation_x, possibleLocation_y, '^^^^^^^^^^^^^^^^^^^^^^^^^^^');
     let safeLocation = true;
 
     let ufoProjectiles = this.projectiles.filter(proj => proj.owner.shipType != 'player');
@@ -438,13 +415,13 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
         this.projectiles.forEach(function (projectile, index) {
             if (projectile != null) {
                 if (projectile.expired == true) {
-                    projectiles_copy[index] = null;//destroy out of bounds asteroids
+                    projectiles_copy[index] = null;//destroy expired asteroids
                 } else {
                     projectile.update(elapsedTime);
                 }
             }
         })
-        this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying out of bounds projectiles
+        this.projectiles = this.projectiles.filter(el => el != null);//clean up null entries caused by destroying expired projectiles
 
         //check for NEXT LEVEL
         if (this.asteroids.length == 0 && this.UFOsLeftToSpawn <= 0 && this.ufos.length == 0) {//if level cleared
@@ -544,8 +521,7 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
         for (let laser in this.projectiles) {
             if (this.projectiles[laser].owner.id != this.ufos[ufo].id) {
                 if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
-                    // console.log('HIT');
-                    // console.log('lasers', this.projectiles)
+
                     this.incrementScore(this.UFO_KILL_SCORE);
                     this.notifyUFO(this.ufos[ufo]);
 
@@ -586,7 +562,6 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
         if (this.projectiles[laser].owner.shipType != 'player') {//make sure player doesn't shoot self
             if (this.collides(this.projectiles[laser], this.player)) {
 
-                console.log('I`VE BEEN SHOT!', this.projectiles[laser])
                 this.losePlayerLife();
 
                 this.projectiles[laser] = null;
@@ -794,8 +769,6 @@ MyGame.objects.GameModel.prototype.clearGame = function () {
 
     //reset player
     this.player.reset();
-
-    // MyGame.graphics.clear();
 
 }
 
