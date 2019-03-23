@@ -139,4 +139,22 @@ div#hyperspace-cooldown:before {
 
 #credits .menu-text {
     text-align: center;
+    overflow-y: scroll;
+    max-height: 300px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+#credits .menu-text::-webkit-scrollbar {
+    width: 3px;
+}
+ 
+#credits .menu-text::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+
+}
+ 
+#credits .menu-text::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
