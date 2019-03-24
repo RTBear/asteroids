@@ -454,7 +454,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
             this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
             for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
-                // this.generateAsteroid(ASTEROID_SIZES.LARGE);
+                this.generateAsteroid(ASTEROID_SIZES.LARGE);
             }
         }
 

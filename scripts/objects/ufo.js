@@ -47,7 +47,7 @@ MyGame.objects.UFO = function (spec) {
     this.isDestroyer = spec.isDestroyer;
     this.target = spec.target;
     this.accuracy = spec.accuracy;
-    this.fireRate = .5;
+    // this.fireRate = .5;
 }
 
 MyGame.objects.UFO.prototype = Object.create(MyGame.objects.Ship.prototype);//inherit from Ship object
