@@ -140,11 +140,11 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
     probabilityOfDestroyer = (probabilityOfDestroyer > 1) ? 1 : probabilityOfDestroyer; //upper bound of probability at 1
     probabilityOfDestroyer = (probabilityOfDestroyer < 0.5) ? 0.5 : probabilityOfDestroyer; //lower bound of probability at .5
     let possibleUFOTypes = [];
-    for(let i = 0; i < probabilityOfDestroyer*100; i++){
+    for (let i = 0; i < probabilityOfDestroyer * 100; i++) {
         //probability of destroyers (out of 100 ships)
         possibleUFOTypes.push(true);
     }
-    for(let i = 0; i < 100 - probabilityOfDestroyer*100; i++){
+    for (let i = 0; i < 100 - probabilityOfDestroyer * 100; i++) {
         //possibilty of non-destroyers (out of 100 ships)
         possibleUFOTypes.push(false);
     }
@@ -164,12 +164,17 @@ MyGame.objects.GameModel.prototype.generateUFO = function (center) {
         particleSystem: this.particleSystem,
         audioSystem: this.audioSystem,
         isDestroyer: this.choose(possibleUFOTypes),
+        target: this.player.center, //reference to location of object
+        accuracy: this.level,
     }
 
     console.log(spec.isDestroyer);
 
-    asteroidImageOptions = ['./assets/ships/ufo.svg']; //for now... maybe add the dark one later
-    spec.imageSrc = this.choose(asteroidImageOptions);
+    if (spec.isDestroyer) {
+        spec.imageSrc = './assets/ships/ufodark.svg';
+    } else {
+        spec.imageSrc = './assets/ships/ufo.svg';
+    }
 
     spec.size = {
         x: 50,
@@ -449,7 +454,7 @@ MyGame.objects.GameModel.prototype.update = function (elapsedTime) {
 
             this.asteroidsLeftToSpawn = Math.ceil(this.level * 1.5);
             for (let i = 0; i <= this.asteroidsLeftToSpawn; --this.asteroidsLeftToSpawn) {
-                this.generateAsteroid(ASTEROID_SIZES.LARGE);
+                // this.generateAsteroid(ASTEROID_SIZES.LARGE);
             }
         }
 
@@ -538,8 +543,9 @@ MyGame.objects.GameModel.prototype.checkCollisions = function () {
         for (let laser in this.projectiles) {
             if (this.projectiles[laser].owner.id != this.ufos[ufo].id) {
                 if (this.collides(this.projectiles[laser], this.ufos[ufo])) {
-
-                    this.incrementScore(this.UFO_KILL_SCORE);
+                    if (this.projectiles[laser].owner.shipType == 'player') {
+                        this.incrementScore(this.UFO_KILL_SCORE);
+                    }
                     this.notifyUFO(this.ufos[ufo]);
 
                     this.projectiles[laser].explode();
@@ -795,7 +801,7 @@ MyGame.objects.GameModel.prototype.newGame = function () {
     this.nextID = 1;
     this.score = 0;
     this.level = 0;
-    this.remainingLives = 2; 
+    this.remainingLives = 2;
     this.UFOsLeftToSpawn = this.level;
 
 }

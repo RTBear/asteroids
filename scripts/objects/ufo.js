@@ -9,6 +9,9 @@
 //    projectileAccelerationRate: , //float //acceleration rate of projectiles
 //    id: ,//id for ship
 //    shipType: , //type of ship ie 'ufo',
+//    isDestroyer: , //boolean //is the ship a much more dangerous "destroyer" ufo
+//    target: , //reference to location of object
+//    accuracy: ,//int // 0-100 determines size of aiming window (100 is directly at target)
 //    //I think I have to include the spec stuff for things I inherit from (Ship)
 //////////////////// SHIP ///////////////////////////////////////////////////////
 //    turnRate: , //float //max rotations per time
@@ -38,10 +41,13 @@ MyGame.objects.UFO = function (spec) {
     this.projectileSpeed = spec.projectileSpeed;
     this.projectileAccelerationRate = spec.projectileAccelerationRate;
 
-    this.projectiles = [];//array containing lasers
+    this.projectiles = [];//array containing projectiles
     this.id = spec.id;
     this.shipType = spec.shipType;
-    // this.fireSound = new Audio();
+    this.isDestroyer = spec.isDestroyer;
+    this.target = spec.target;
+    this.accuracy = spec.accuracy;
+    this.fireRate = .5;
 }
 
 MyGame.objects.UFO.prototype = Object.create(MyGame.objects.Ship.prototype);//inherit from Ship object
@@ -60,12 +66,26 @@ MyGame.objects.UFO.prototype.rotate = function (elapsedTime) {
     let rotation = this.get_rotation();//from SpaceObject
 
     let newRotation;
-    if (this.rotationDirection >= 0) {
-        //rotate right
-        newRotation = rotation * 180 / Math.PI + (elapsedTime * this.rotationRate);
-    } else if (this.rotationDirection < 0) {
-        //rotate left
-        newRotation = rotation * 180 / Math.PI - (elapsedTime * this.rotationRate);
+    if (this.isDestroyer) {
+        //rotate toward player
+        let angleToPlayer = Math.atan2(this.target.y - this.center.y, this.target.x - this.center.x); //may need to add 90
+
+        let accuracyWindow = (100/this.accuracy) / 3 + 3;
+        let angleRangeUpper = angleToPlayer * 180 / Math.PI + accuracyWindow; //at level 100 torpedo is aimed directly at target
+        let angleRangeLower = angleToPlayer * 180 / Math.PI - accuracyWindow; //at level 100 torpedo is aimed directly at target
+
+        let targetAngle = Random.nextRange(angleRangeLower, angleRangeUpper + 1) + 90;//in degrees
+
+        newRotation = targetAngle;
+    } else {
+        //rotate randomly
+        if (this.rotationDirection >= 0) {
+            //rotate right
+            newRotation = rotation * 180 / Math.PI + (elapsedTime * this.rotationRate);
+        } else if (this.rotationDirection < 0) {
+            //rotate left
+            newRotation = rotation * 180 / Math.PI - (elapsedTime * this.rotationRate);
+        }
     }
 
     this.set_orientation({
@@ -87,12 +107,10 @@ MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
         let current_rotation = this.get_rotation();
         // console.log('ship center',current_momentum,current_momentum.x,current_momentum.y, typeof current_momentum.x)
 
-        let laser = new MyGame.objects.Projectile({
+        let projectileSpec = {
             owner: this, //reference to owner ship
             accelerationRate: this.projectileAccelerationRate,
-
             // imageSrc: './assets/ships/starship.svg',   // Web server location of the image
-            imageSrc: './assets/projectiles/torpedo.svg',   // Web server location of the image
             center: { x: current_location.x, y: current_location.y },
             size: { x: 30, y: 30 },
             orientation: { x: current_orientation.x, y: current_orientation.y },//orientation angle where x = Math.cos(angle) and y = Math.sin(angle) //used as the direction of acceleration
@@ -101,9 +119,15 @@ MyGame.objects.UFO.prototype.fire = function (elapsedTime) {
             momentum: { x: 0, y: 0 }, //vector //start at zero so projectiles go straight
             graphics: this.graphics,//reference to graphics renderer (MyGame.graphics)
             range: 5 * 1000,
-        });
-        // console.log(laser)
-        this.projectiles.push(laser);
+        }
+        if (this.isDestroyer) {
+            projectileSpec.imageSrc = './assets/projectiles/torpedodark.svg';
+        } else {
+            projectileSpec.imageSrc = './assets/projectiles/torpedo.svg';
+        }
+        let projectile = new MyGame.objects.Projectile(projectileSpec);
+        // console.log(projectile)
+        this.projectiles.push(projectile);
         this.audioSystem.playSound('missle');
 
     }
